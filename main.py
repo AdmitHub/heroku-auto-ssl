@@ -226,3 +226,4 @@ if ok_prompt_res == 1:
     logi_err("Modify your configuration and rerun")
     log_err("Exiting...")
     sys.exit(1)
+
