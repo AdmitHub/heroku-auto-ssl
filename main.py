@@ -1,10 +1,12 @@
 import subprocess, sys, shutil, json, re
 
 # Simple logging helpers
-TAG_ERR  = "[ERROR] "
-TAG_INFO = "[INFO ] "
+TAG_ERR    = "[ERROR ] "
+TAG_INFO   = "[INFO  ] "
+TAG_PROMPT = "[PROMPT] "
 
 COLOR_ERR = '\033[91m'
+COLOR_PROMPT = '\033[92m'
 COLOR_INFO = '\033[95m'
 _COLOR_END = '\033[0m'
 
@@ -25,6 +27,33 @@ def log_info(msg):
 def logi_info(msg, indent=LOG_INDENT, indent_num=1):
     log(TAG_INFO, COLOR_INFO, msg, indent, indent_num)
 
+def prompt(question):
+    return input(COLOR_PROMPT + TAG_PROMPT + question + " " + _COLOR_END)
+
+def prompt_choices(question, choices=["y", "n"], default_i=0):
+    choices_str = ""
+
+    choices_i = 0
+    for choice in choices:
+        if choices_i != 0:
+           choices_str += "/"
+
+        if choices_i == default_i:
+            choices_str += choice.upper()
+        else:
+            choices_str += choice.lower()
+
+        choices_i += 1
+
+    while True:
+        inp = prompt(question + " [" + choices_str + "]")
+
+        if inp == "":
+            return default_i
+
+        if inp in choices:
+            return choices.index(inp)
+
 # Subprocess helpers
 def decode_output(pipe):
     return pipe.decode(sys.stdout.encoding)
@@ -44,7 +73,7 @@ if certbot_cli_path == None:
 
 if deps_met == False:
     log_err("Not all dependencies met, exiting...")
-    sys.exit()
+    sys.exit(1)
 
 # Check Heroku logged in
 log_info("Checking Heroku account")
@@ -55,13 +84,13 @@ if heroku_whoami.returncode == 0:
 elif heroku_whoami.returncode == 100:
     logi_err("Not logged in")
     logi_err("Exiting...")
-    sys.exit()
+    sys.exit(1)
 else:
     logi_err("Unknown error when running:")
     logi_err("$ heroku whoami", indent_num=2)
     logi_err(decode_output(heroku_whoami.stdout), (LOG_INDENT * 2) + "  ")
     logi_err("Exiting...")
-    sys.exit()
+    sys.exit(1)
 
 # Load sites.csv
 log_info("Loading \"sites.json\"")
@@ -99,12 +128,12 @@ for site in sites_conf:
         logi_err("$ heroku domains --app " + site['heroku_app'], indent_num=2)
         logi_err(decode_output(app_ps.stdout), (LOG_INDENT * 2) + "  ")
         logi_err("Exiting...", indent_num=2)
-        sys.exit()
+        sys.exit(1)
 
 if can_access_apps == False:
     log_err("Cannot access all apps")
     log_err("Exiting...")
-    sys.exit()
+    sys.exit(1)
 
 # Check Heroku domains for apps
 log_info("Checking Heroku app domains match with provided")
@@ -122,7 +151,7 @@ if heroku_apps_have_domains == False:
     log_err("Not all Heroku apps have the domain provided")
     logi_err("Make sure to register the provided domains with Heroku before continuing")
     log_err("Exiting...")
-    sys.exit()
+    sys.exit(1)
 
 # Check Heroku for SSL endpoints
 log_info("Checking for SSL endpoints")
@@ -148,13 +177,13 @@ for site in sites_conf:
         logi_err("$ heroku addons --app " + site['heroku_app'], indent_num=2)
         logi_err(decode_output(app_addons.stderr), (LOG_INDENT * 2) + "  ")
         logi_err("Exiting...")
-        sys.exit()
+        sys.exit(1)
 
 if heroku_apps_have_endpoints == False:
     log_err("Not all Heroku apps have SSL endpoints")
     logi_err("Make sure to add the SSL endpoint addon before continuing")
     log_err("Exiting...")
-    sys.exit()
+    sys.exit(1)
 
 # Determine Heroku SSL endpoint action
 log_info("Determining SSL endpoint action")
@@ -176,4 +205,24 @@ for site in sites_conf:
             logi_err("$ heroku certs:info --app " + site['heroku_app'], indent_num=2)
             logi_err(output, (LOG_INDENT * 2) + "  ")
             logi_err("Exiting...")
-            sys.exit()
+            sys.exit(1)
+
+# Generate SSL cert domain list
+domains = []
+
+for site in sites_conf:
+    domains.append(site['cert_url'])
+
+# Validate SSL cert domain list
+log_info("Will attempt to generate an SSL certificate for the following domains:")
+
+for domain in domains:
+    logi_info("- " + domain)
+
+ok_prompt_res = prompt_choices("Is this ok?")
+
+if ok_prompt_res == 1:
+    log_err("SSL certificate domains not ok")
+    logi_err("Modify your configuration and rerun")
+    log_err("Exiting...")
+    sys.exit(1)
