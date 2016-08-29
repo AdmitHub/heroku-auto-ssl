@@ -146,30 +146,3 @@ exports.endpoints.post = function (body, send) {
 };
 
 module.exports = exports;
-
-// EXAMPLE USAGE
-/*
-// Import libchlngproto from local fs, most likely libchlngproto will be a git submodule
-const libchlngproto = require("heroku-auto-ssl/libchlngproto");
-
-// Register check endpoint in place of your choosing
-app.post("/chlngproto/check", function (req, res) {
-    // Call handler function
-    libchlngproto.endpoints.check(req.body, res.send);
-});
-
-// Register post endpoint in place of your choosing
-app.post("/chlngproto/post", function (req, res) {
-    // Call handler function
-    libchlngproto.endpoints.post(req.body, res.send);
-});
-
-// Register handler in application to catch every request
-app.get("*", function (req, res) {
-    // Check to see if request url matches challenge url
-    if (req.url === libchlngproto.currentChallenge.url) {
-        // Send challenge content
-        res.send(200, libchlngproto.currentChallenge.content);
-    }
-});
-*/

@@ -42,7 +42,7 @@ key. Set the `CHLNG_POST_PROTO_PUB_KEY` environment variable to the contents of 
 Servers must also implement the Challenge Post protocol, which in itself is pretty simple. Following is an example of a
 NodeJS and Express implementation:
 
-```
+```js
 // Import libchlngproto from local fs, most likely libchlngproto will be a git submodule
 const libchlngproto = require("heroku-auto-ssl/libchlngproto");
 
