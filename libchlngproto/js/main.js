@@ -27,7 +27,7 @@ exports.common.verify = function (msg) {
     var pubKey = undefined;
 
     if (exports.common._pubKey !== undefined) {
-        pubkey = exports.common._pubKey;
+        pubKey = exports.common._pubKey;
     } else if (process.env.CHLNG_POST_PROTO_PUB_KEY !== undefined) {
         exports.common._pubKey = pubKey;
         pubKey = process.env.CHLNG_POST_PROTO_PUB_KEY;
@@ -50,13 +50,13 @@ exports.common.verify = function (msg) {
  * @returns {number} Same return values as exports.common.verify
  */
 exports.common.verifyAndSendErrors = function (msg, send) {
-    var verif = exports.common.verify(msg);
+    var verif = exports.common.verify(msg, msg);
 
     if (verif === -1) {
         send(500, "NO PUB");
         return -1;
     } else if (verif === -2) {
-        send(500, "ERROR")
+        send(500, "ERROR");
         return -2;
     } else if (verif === false) {
         send(404, "NOT FOUND");
