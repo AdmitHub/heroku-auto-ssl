@@ -3,7 +3,7 @@
     "heroku_app": "website",
     "cert_url": "www.example.com",
     "challenge_proto": {
-      "priv_key_path": "foo.pem",
+      "priv_key": "12345678",
       "root_url": "/"
     }
   },
@@ -11,7 +11,7 @@
     "heroku_app": "api",
     "cert_url": "api.example.com",
     "challenge_proto": {
-      "priv_key_path": "foo.pem",
+      "priv_key": "12345678",
       "root_url": "/"
     }
   }

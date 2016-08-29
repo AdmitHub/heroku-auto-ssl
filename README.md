@@ -10,6 +10,7 @@ To use Heroku Auto SSL the Heroku and Lets Encrypt command line interfaces must 
 
 - [Install Heroku CLI](https://devcenter.heroku.com/articles/heroku-command-line)
 - [Install Lets Encrypt CLI](https://certbot.eff.org)
+- [Install GnuPG](https://www.gnupg.org/download/index.html)
 
 ## Configuration
 Make a copy of `sites.example.json` named `sites.json`.
@@ -44,7 +45,7 @@ clients on behalf of the user.
 
 # Challenge Post protocol
 (Abbreviated as: "CPP")
-The Challenge Post protocol is used to dynamically post a Lets Encrypt `http-01` challenges to Heroku application
+The Challenge Post protocol is used to dynamically post any Lets Encrypt `http-01` challenges to Heroku application
 servers.
 
 ## Security
@@ -55,8 +56,6 @@ corresponding public key, and checks the body of each request to see if it was s
 As a further security measure any CPP requests which are not signed correctly will return with the status code `404`.
 
 ## Endpoints
-Message bodies should be encoded in `application/x-www-form-urlencoded` form.
-
 - `${chlng_post_proto.root_url}/check`
     - **Method:** `POST`
     - **Body**
@@ -64,6 +63,12 @@ Message bodies should be encoded in `application/x-www-form-urlencoded` form.
     - **Response**
         - `200` - **Body:** `OK`
             - If message is signed with correct private key
+        - `400` - **Body:**: `BAD BODY`
+            - If the message body does not exactly match `OK?`
+        - `500` - **Body:** `NO PUB`
+            - If the server is not setup with a public key
+        - `500` - **Body:**: `ERROR`
+            - If an error occurs
 - `${chlng_post_proto.root_url}/post`
     - **Method:** `POST`
     - **Body**
@@ -76,7 +81,12 @@ Message bodies should be encoded in `application/x-www-form-urlencoded` form.
     - **Response**
         - `200` - **Body:** `OK`
             - If challenge is successfully posted
-
+        - `400` - **Body:** `BAD BODY`
+            - If either the `url` or `content` field is missing
+        - `500` - **Body:** `NO PUB`
+            - If the server is not setup with a public key
+        - `500` - **Body:**: `ERROR`
+            - If an error occurs
 # Notes
 The following runs `certonly` in manual mode without needing interactive prompts.  
 
