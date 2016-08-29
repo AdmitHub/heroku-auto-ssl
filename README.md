@@ -39,6 +39,35 @@ The `sites.json` provides all the information required to obtain and provision S
 In order to securely receive Challenge Post protocol requests servers must have knowledge of the corresponding public
 key. Set the `CHLNG_POST_PROTO_PUB_KEY` environment variable to the contents of the public key.
 
+Servers must also implement the Challenge Post protocol, which in itself is pretty simple. Following is an example of a
+NodeJS and Express implementation:
+
+```
+// Import libchlngproto from local fs, most likely libchlngproto will be a git submodule
+const libchlngproto = require("heroku-auto-ssl/libchlngproto");
+
+// Register check endpoint in place of your choosing
+app.post("/chlngproto/check", function (req, res) {
+    // Call handler function
+    libchlngproto.endpoints.check(req.body, res.send);
+});
+
+// Register post endpoint in place of your choosing
+app.post("/chlngproto/post", function (req, res) {
+    // Call handler function
+    libchlngproto.endpoints.post(req.body, res.send);
+});
+
+// Register handler in application to catch every request
+app.get("*", function (req, res) {
+    // Check to see if request url matches challenge url
+    if (req.url === libchlngproto.currentChallenge.url) {
+        // Send challenge content
+        res.send(200, libchlngproto.currentChallenge.content);
+    }
+});
+```
+
 # Behind the scenes
 Heroku Auto SSL does not interact with any secret APIs, instead it uses the Heroku and Lets Encrypt command line
 clients on behalf of the user.
