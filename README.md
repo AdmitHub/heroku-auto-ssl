@@ -136,6 +136,7 @@ As a further security measure any CPP requests which are not signed correctly wi
             - If the server is not setup with a public key
         - `500` - **Body:**: `ERROR`
             - If an error occurs
+
 # Notes
 The following runs `certonly` in manual mode without needing interactive prompts.  
 
