@@ -1,5 +1,9 @@
 "use strict";
 
+// Import fs and path modules (Used to load test data)
+var fs = require("fs");
+var path = require("path");
+
 // Import query string parser
 var qs = require("qs");
 
@@ -54,7 +58,7 @@ exports.common.verify = function (msg) {
 
         // Call OpenPGPjs verify method
         var verif = msgObj.verify(keyObj);
-        // Make obj is only has 1 key, if it has more than one than we are in trouble
+        // Check obj only has 1 key, if it has more than one than we are in trouble
         //      (since we only imported one)
         if (verif.length !== 1) {
             return [msgTxt, -2];
@@ -120,7 +124,7 @@ exports.endpoints.check = function (body, send) {
         return;
     }
 
-    // Check to see that client send "OK?"
+    // Check to see that client sent "OK?"
     if (txt !== "OK?") {
         send(400, "BAD BODY");
         return;
@@ -165,6 +169,127 @@ exports.endpoints.post = function (body, send) {
 
     // Respond ok
     send(200, "OK");
+};
+
+/**
+ * Data to be used in tests
+ */
+exports.testData = {};
+
+/**
+ * A sample GPG key to use in tests
+ */
+exports.testData.testKey = {};
+exports.testData.testKey.public = "";
+exports.testData.testKey.private = "";
+
+/**
+ * Sample text signed by various keys
+ */
+exports.testData.signedText = [];
+exports.testData.signedText[0] = { clear: "", signed: "" };
+exports.testData.signedText[1] = { clear: "", signed: "" };
+exports.testData.signedText[2] = { clear: "", signed: "" };
+exports.testData.signedText[3] = { clear: "", signed: "" };
+exports.testData.signedText[4] = { clear: "", signed: "" };
+exports.testData.signedText[5] = { clear: "", signed: "" };
+exports.testData.signedText[6] = { clear: "", signed: "" };
+exports.testData.signedText[7] = { clear: "", signed: "" };
+
+/**
+ * A functon specifically made for loading test data from files
+ * @param path Path of data file, assuming working dir is `test-data`
+ * @param assigner A function which assigns the value, expected signature: `function (content)`
+ * @private
+ */
+exports.testData._loadFile = function(filename, assigner) {
+    var content = fs.readFileSync(path.join(__dirname, "/../test-data/", filename), "UTF-8");
+    console.log(content);
+    assigner(content);
+};
+
+/**
+ * Function which loads in the content of all test data
+ * Test data is no automatically loaded in because data is stored in text files and is not needed for normal
+ * library operation.
+ *
+ * This only has to be called once per instance of libchlngproto
+ */
+exports.testData.load = function() {
+    var data = [
+        [
+            "test-key/public.asc",
+            function(content) {
+                exports.testData.testKey.public = content;
+            }
+        ],
+        [
+            "test-key/private.asc",
+            function(content) {
+                exports.testData.testKey.private = content;
+            }
+        ],
+        [
+            "signed-text/01.txt",
+            function(content) {
+                var i = exports.testData.signedText[0];
+                i.clear = "OK?";
+                i.signed = content;
+            }
+        ],
+        [
+            "signed-text/02.txt",
+            function(content) {
+                var i = exports.testData.signedText[1];
+                i.clear = "url=/sslverify&content=supersecret";
+                i.signed = content;
+            }
+        ],
+        [
+            "signed-text/03.txt",
+            function(content) {
+                var i = exports.testData.signedText[2];
+                i.clear = "OK?";
+                i.signed = content;
+            }
+        ],
+        [
+            "signed-text/04.txt",
+            function(content) {
+                var i = exports.testData.signedText[3];
+                i.clear = "url=/sslverify&content=supersecret";
+                i.signed = content;
+            }
+        ],
+        [
+            "signed-text/05.txt",
+            function(content) {
+                var i = exports.testData.signedText[4];
+                i.clear = "OK!";
+                i.signed = content;
+            }
+        ],
+        [
+            "signed-text/06.txt",
+            function(content) {
+                var i = exports.testData.signedText[5];
+                i.clear = "url=doesnt_provide_content_key";
+                i.signed = content;
+            }
+        ],
+        [
+            "signed-text/07.txt",
+            function(content) {
+                var i = exports.testData.signedText[6];
+                i.clear = "content=doesnt_provide_url_key";
+                i.signed = content;
+            }
+        ]
+    ];
+
+    data.forEach(function(item) {
+        exports.testData._loadFile(item[0], item[1]);
+    });
 };
 
 module.exports = exports;
