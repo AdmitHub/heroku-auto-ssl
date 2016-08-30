@@ -1,8 +1,11 @@
 "use strict";
 
-// Import crypto lib and create verify object
-const crypto = require('crypto');
-const verify = crypto.createVerify('RSA-SHA256');
+// Import query string parser
+var qs = require("qs");
+
+// Import and config openpgp module
+var openpgp = require("openpgp");
+openpgp.config.aead_protect = true;
 
 var exports = {};
 
@@ -19,10 +22,12 @@ exports.common = {};
 /**
  * Verifies signed message
  * @param msg Message to verify, should be a string
- * @return -1 No public key found
- * @return -2 Error verifying
- * @return true msg is valid
- * @return false msg is not valid
+ * @return {msgText, valid} Returns an array (Acting as a tuple)
+ *                          First element is the message text
+ *                          Second element is either a negative integer or a boolean, values:
+ *                              -1    = No public key found
+ *                              -2    = Error verifying message
+ *                              true  = Message valid
  */
 exports.common.verify = function (msg) {
     var pubKey = undefined;
@@ -33,17 +38,41 @@ exports.common.verify = function (msg) {
         pubKey = process.env.CHLNG_POST_PROTO_PUB_KEY;
     } else {
         // If not found return -1 error code
-        return -1;
+        return [undefined, -1];
     }
 
     // Verify message is signed by private key corresponding with public key provided
     try {
-        // Return verify status if all is well
-        return verify.verify(pubKey, msg);
+        // Create OpenPGPjs key object for key found above
+        var keyObj = openpgp.key.readArmored(pubKey).keys;
+
+        // Create OpenPGPjs message object
+        var msgObj = openpgp.message.readArmored(msg);
+
+        // Get message content before we do anything else
+        var msgTxt = msgObj.getText().trim();
+
+        // Call OpenPGPjs verify method
+        var verif = msgObj.verify(keyObj);
+        // Make obj is only has 1 key, if it has more than one than we are in trouble
+        //      (since we only imported one)
+        if (verif.length !== 1) {
+            return [msgTxt, -2];
+        }
+
+        // For convenience sake set verif object to its only element
+        verif = verif[0];
+        // If valid is null than that means something is wrong with our public key
+        if (verif.valid === null) {
+            return [msgTxt, -2];
+        }
+
+        // If all is well then return status
+        return [msgTxt, verif.valid];
     } catch(e) {
         // Log error and return -2 error code if something went wrong
         console.error("Error verifying message:", e);
-        return -2;
+        return [undefined, -2];
     }
 };
 
@@ -54,32 +83,19 @@ exports.common.verify = function (msg) {
  * @returns {number} Same return values as exports.common.verify
  */
 exports.common.verifyAndSendErrors = function (msg, send) {
-    var verif = exports.common.verify(msg, msg);
+    var verif = exports.common.verify(msg);
+    var resCode = verif[1];
 
     // Send appropriate message back for each error
-    if (verif === -1) {
+    if (resCode === -1) {
         send(500, "NO PUB");
-        return -1;
-    } else if (verif === -2) {
+    } else if (resCode === -2) {
         send(500, "ERROR");
-        return -2;
-    } else if (verif === false) {
+    } else if (resCode === false) {
         send(404, "NOT FOUND");
-        return false;
     }
 
-    // Assume true if program has reached this state
-    return true;
-};
-
-/**
- * Decodes a application/x-www-form-urlencoded string
- * Taken from SO: http://stackoverflow.com/a/4458580/1478191
- * @param str String to decode
- */
-exports.common.urlDecode = function (str) {
-    // Handles some libraries encoding spaces as "+"
-    decodeURIComponent((str+'').replace(/\+/g, '%20'));
+    return verif;
 };
 
 /**
@@ -95,14 +111,17 @@ exports.endpoints = {};
 exports.endpoints.check = function (body, send) {
     // Verify request
     var verif = exports.common.verifyAndSendErrors(body, send);
-    if (verif !== true) {
+    var txt = verif[0];
+    var resCode = verif[1];
+
+    if (resCode !== true) {
         // Return without doing anything if result of verifyAndSendErrors is not true
         // Makes sense because verifyAndSendErrors will send correct responses to client for every value but true
         return;
     }
 
     // Check to see that client send "OK?"
-    if (body !== "OK?") {
+    if (txt !== "OK?") {
         send(400, "BAD BODY");
         return;
     }
@@ -119,14 +138,17 @@ exports.endpoints.check = function (body, send) {
 exports.endpoints.post = function (body, send) {
     // Verify request
     var verif = exports.common.verifyAndSendErrors(body, send);
-    if (verif !== true) {
+    var txt = verif[0];
+    var resCode = verif[1];
+
+    if (resCode !== true) {
         // Return with doing anything if result of verifyAndSendErrors is not true
         // See exports.endpoints.check for further explanation
         return;
     }
 
     // Get properties
-    var props = exports.common.urlDecode(body);
+    var props = qs.parse(txt);
 
     // Check to make sure url and content fields are provided
     if (props.url === undefined || props.content === undefined) {

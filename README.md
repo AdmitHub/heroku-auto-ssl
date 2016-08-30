@@ -43,28 +43,47 @@ Servers must also implement the Challenge Post protocol, which in itself is pret
 NodeJS and Express implementation:
 
 ```js
-// Import libchlngproto from local fs, most likely libchlngproto will be a git submodule
-const libchlngproto = require("heroku-auto-ssl/libchlngproto");
+// Import Express and body parser
+var express = require("express");
+var bodyParser = require("body-parser");
+
+// Import Challenge Post protocol library
+var libchlngproto = require("../heroku-auto-ssl/libchlngproto/js");
+
+// Setup express
+var app = express();
+app.use(bodyParser.text());
 
 // Register check endpoint in place of your choosing
 app.post("/chlngproto/check", function (req, res) {
     // Call handler function
-    libchlngproto.endpoints.check(req.body, res.send);
+    // Notice how we pass the send method with bind, this is so the "this"
+    // object is properly set within the send method
+    libchlngproto.endpoints.check(req.body, res.send.bind(res));
 });
 
 // Register post endpoint in place of your choosing
 app.post("/chlngproto/post", function (req, res) {
     // Call handler function
-    libchlngproto.endpoints.post(req.body, res.send);
+    libchlngproto.endpoints.post(req.body, res.send.bind(res));
 });
 
 // Register handler in application to catch every request
 app.get("*", function (req, res) {
     // Check to see if request url matches challenge url
-    if (req.url === libchlngproto.currentChallenge.url) {
-        // Send challenge content
-        res.send(200, libchlngproto.currentChallenge.content);
+    if (req.path === libchlngproto.currentChallenge.url) {
+            // Send challenge content
+            res.send(200, libchlngproto.currentChallenge.content);
+	    return;
     }
+
+    // Otherwise send 404
+    res.send(404);
+});
+
+// Start our application
+app.listen(3000, function() {
+	console.log("Listening on :3000");
 });
 ```
 
