@@ -48,7 +48,8 @@ var express = require("express");
 var bodyParser = require("body-parser");
 
 // Import Challenge Post protocol library
-var libchlngproto = require("../heroku-auto-ssl/libchlngproto/js");
+// Make sure you have "libchlngproto" as a dependency in your package.json
+var libchlngproto = require("libchlngproto");
 
 // Setup express
 var app = express();
