@@ -143,3 +143,7 @@ The following runs `certonly` in manual mode without needing interactive prompts
 ```
 sudo letsencrypt certonly --dry-run --email noahhuppert@gmail.com --domain www.noahhuppert.com --agree-tos --manual --manual-public-ip-logging-ok
 ```
+
+# `libchlngproto` javascript changelog
+- 1.0.0 - Initial version
+- 1.1.0 - Added test data

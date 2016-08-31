@@ -4,6 +4,9 @@
 var fs = require("fs");
 var path = require("path");
 
+// Import http (Used to test)
+var http = require("http");
+
 // Import query string parser
 var qs = require("qs");
 
@@ -204,7 +207,6 @@ exports.testData.signedText[7] = { clear: "", signed: "" };
  */
 exports.testData._loadFile = function(filename, assigner) {
     var content = fs.readFileSync(path.join(__dirname, "/../test-data/", filename), "UTF-8");
-    console.log(content);
     assigner(content);
 };
 
@@ -216,6 +218,9 @@ exports.testData._loadFile = function(filename, assigner) {
  * This only has to be called once per instance of libchlngproto
  */
 exports.testData.load = function() {
+    // Array will be iterated through
+    // First element of each item is file path to load
+    // Second element of each item is the "assigner" for the _loadFile function
     var data = [
         [
             "test-key/public.asc",
@@ -289,6 +294,131 @@ exports.testData.load = function() {
 
     data.forEach(function(item) {
         exports.testData._loadFile(item[0], item[1]);
+    });
+};
+
+/**
+ * An internal function used by exports._testEndpoint to print errors and call the callback
+ * A seperate message because the request can complete in multiple places
+ * @param endpoint Endpoint being tested
+ * @param errors Short error names, passed to callback
+ * @param errorMessages Long error messages, one entry per line
+ * @param callback Callback for exports._testEndpoint
+ * @private
+ */
+exports._testEndpoint_printErrors = function(endpoint, errors, errorMessages, callback) {
+    if (errorMessages.length > 0) {
+       console.log("Error testing endpoint: \"" + endpoint + "\"");
+    }
+
+    errorMessages.forEach(function(error) {
+        console.log("    " + error);
+    });
+
+    callback(errors.length === 0, errors);
+};
+
+/**
+ * Convenience method for testing Challenge Post protocol endpoints
+ * @param serverInfo Object which contains information about the server, contains keys: host, port, path
+ * @param requestMethod HTTP request method
+ * @param requestEndpoint HTTP request endpoint (Will be appended to serverInfo.path)
+ * @param requestBody HTTP request body
+ * @param expectedCode Expected response HTTP status code
+ * @param expectedBody Expected response body
+ * @param callback Callback, signature: `function(ok, errors)`
+ *          callback.ok = {boolean} If the endpoint meets expected requirements
+ *          callback.errors = {array<string>} Array of errors, possible element values:
+ *                  - internal = An internal error occcured while MAKING the http request
+ *                  - body = Response body did not match
+ *                  - code = Response code did not match
+ * @private
+ */
+exports._testEndpoint = function(serverInfo, requestMethod, requestEndpoint, requestBody, expectedCode, expectedBody, callback) {
+    // Prepare http request options
+    var requestOptions = {
+        method: requestMethod,
+        hostname: serverInfo.host,
+        port: serverInfo.port,
+        path: serverInfo.path + requestEndpoint,
+        headers: {
+            "Content-Type": "text/plain",
+            "Content-Length": Buffer.byteLength(requestBody)
+        }
+    };
+
+    // Create errors array for later use
+    // This will hold any validation errors
+    var errors = [];
+    var errorMessages = [];
+
+    // Create request object
+    var request = http.request(requestOptions, function(response) {
+        // Set encoding
+        response.setEncoding("utf8");
+
+        // Register event handlers to collect response body
+        var responseBody = "";
+        response.on("data", function(chunk) {
+            responseBody += chunk;
+        });
+
+        // Check response against expected parameters
+        response.on("end", function(){
+            // Check response HTTP status code
+            if (response.statusCode !== expectedCode) {
+                errors.push("code");
+                errorMessages.push("Expected response status code to be: \"" + expectedCode + "\", was: \"" + response.statusCode + "\"");
+            }
+
+            // Check response body
+            if (responseBody !== expectedBody) {
+                errors.push("body");
+                errorMessages.push("Expected response body to be:");
+                errorMessages.push("    " + expectedBody);
+                errorMessages.push("Was:");
+                errorMessages.push("    " + responseBody);
+            }
+
+            exports._testEndpoint_printErrors(requestEndpoint, errors, errorMessages, callback);
+        });
+    });
+
+    request.on("error", function(error) {
+        errors.push("internal");
+        errorMessages.push("An error occured when making the HTTP request:");
+        errorMessages.push("    " + error.message);
+
+        exports._testEndpoint_printErrors(requestEndpoint, errors, errorMessages, callback);
+    });
+
+    request.write(requestBody);
+    request.end();
+};
+
+/**
+ * Function which tests a url to determine if it is Challenge Post protocol compliant, makes testing various apps much
+ * easier and quicker.
+ * @param host Host of server to test (Do no include http)
+ * @param port Port of server to test
+ * @param path Path infront of Challenge Post protocol
+ * @return True if server is compliant, false if not.
+ *         If false is returned look in console for information on why test failed
+ */
+exports.test = function(host, port, path) {
+    // Load test data
+    exports.testData.load();
+
+    // Info which holds all information about how to contact server
+    // Passed to exports._testEndpoint method
+    var serverInfo = {
+        host: host,
+        port: port,
+        path: path
+    };
+
+    exports._testEndpoint(serverInfo, "POST", "/check", exports.testData.signedText[0].signed, 200, "OK", function(ok, errors) {
+        console.log(ok, errors);
     });
 };
 
