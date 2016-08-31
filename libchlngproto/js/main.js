@@ -604,5 +604,5 @@ exports.test = function(host, port, path, onFinish) {
     callback();
 };
 
-exports.pubKey.loadEnv();
+exports.pubKey.fromEnv();
 module.exports = exports;
