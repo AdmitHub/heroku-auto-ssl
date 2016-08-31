@@ -147,3 +147,4 @@ sudo letsencrypt certonly --dry-run --email noahhuppert@gmail.com --domain www.n
 # `libchlngproto` javascript changelog
 - 1.0.0 - Initial version
 - 1.1.0 - Added test data
+- 1.2.0 - Added self test functionality
