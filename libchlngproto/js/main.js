@@ -473,6 +473,16 @@ exports.test = function(host, port, path, onFinish) {
             var test = tests[testI];
             var requestBody = exports.testData.signedText[test[2]];
             console.log("[" + testI + "] " + test[0] + " " + test[1] + " [" + (test[2] + 1) + "] \"" + requestBody.clear + "\" (" + requestBody.annotation + ") => " + ok + ", " + errors);
+        } else { // If first loop print header documenting test result output
+            console.log("[?1] ?2 ?3 [?4] \"?5\" (?6) => ?7\n" +
+                        "    ?1. Test index\n" +
+                        "    ?2. Request HTTP method\n" +
+                        "    ?3. Request URL (Without server path prepended)\n" +
+                        "    ?4. Signed text id\n" +
+                        "    ?5. Request body (Plain text of previously specified signed text)\n" +
+                        "    ?6. Signed text annotation\n" +
+                        "    ?7. Test passed?\n"
+            );
         }
 
         // After storing previous test results, fire off next test

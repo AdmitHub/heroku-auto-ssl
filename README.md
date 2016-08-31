@@ -48,43 +48,59 @@ var express = require("express");
 var bodyParser = require("body-parser");
 
 // Import Challenge Post protocol library
-// Make sure you have "libchlngproto" as a dependency in your package.json
-var libchlngproto = require("libchlngproto");
+var libchlngproto = require("../heroku-auto-ssl/libchlngproto/js");
 
 // Setup express
 var app = express();
 app.use(bodyParser.text());
 
+function sendFunc(res) {
+	return function(code, body) {
+		if (body !== undefined) {
+			res.status(code).send(body);
+			return;
+		}
+
+		res.sendStatus(code);
+	};
+}
 // Register check endpoint in place of your choosing
 app.post("/chlngproto/check", function (req, res) {
     // Call handler function
     // Notice how we pass the send method with bind, this is so the "this"
     // object is properly set within the send method
-    libchlngproto.endpoints.check(req.body, res.send.bind(res));
+    libchlngproto.endpoints.check(req.body, sendFunc(res));
 });
 
 // Register post endpoint in place of your choosing
 app.post("/chlngproto/post", function (req, res) {
     // Call handler function
-    libchlngproto.endpoints.post(req.body, res.send.bind(res));
+    libchlngproto.endpoints.post(req.body, sendFunc(res));
 });
 
 // Register handler in application to catch every request
 app.get("*", function (req, res) {
     // Check to see if request url matches challenge url
+    console.log("----", req.path);
     if (req.path === libchlngproto.currentChallenge.url) {
             // Send challenge content
-            res.send(200, libchlngproto.currentChallenge.content);
+            res.status(200).send(libchlngproto.currentChallenge.content);
 	    return;
     }
 
     // Otherwise send 404
-    res.send(404);
+    res.sendStatus(404);
 });
 
 // Start our application
 app.listen(3000, function() {
 	console.log("Listening on :3000");
+
+	// Run self test for Challenge Post protocol so diagnostics are in log for future use
+	console.log("Checking Challenge Post protocol compliance");
+	libchlngproto.test("localhost", 3000, "/chlngproto", function(valid, results) {
+        console.[(valid ? "log" : "error")]("Server is " + (!valid ? "**not** " : "") + "Challenge Post protocol compliant");
+	});
 });
 ```
 
