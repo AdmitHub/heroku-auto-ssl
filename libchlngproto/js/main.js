@@ -22,6 +22,103 @@ var exports = {};
 exports.currentChallenge = { url: "", content: "" };
 
 /**
+ * Methods and information relating to the public key used to verify incoming requests
+ * @type {{}}
+ */
+exports.pubKey = {};
+
+/**
+ * Text of public key, set to `undefined` when there is no text
+ */
+exports.pubKey.data = undefined;
+
+/**
+ * Loads the public key via text passed into method
+ * @param text Raw text of public key
+ */
+exports.pubKey.fromText = function(text) {
+    // Check to make sure text isn't empty, because public keys cannot be empty...
+    if (text === undefined || text.length === 0) {
+        // Log warning
+        console.error("libchlngproto - Cannot load public key from empty text string");
+        return;
+    }
+
+    // If all good, set
+    exports.pubKey._data = text;
+};
+
+/**
+ * Loads public key from an environment variable
+ * Called automatically when module loads
+ * @param key [optional] Environment variable name, defaults to `CHLNG_POST_PROTO_PUB_KEY`
+ */
+exports.pubKey.fromEnv = function(key) {
+    // Assign default value if key is undefined
+    if (key === undefined) {
+        key = "CHLNG_POST_PROTO_PUB_KEY";
+    }
+
+    // Check to make sure environment variable is provided
+    if (process.env[key] === undefined) {
+        // Log warning
+        console.error("libchlngproto - Cannot load public key from empty environment variable")
+        return;
+    }
+
+    exports.pubKey._data = process.env[key];
+};
+
+/**
+ * Attempt to load public key first from an environment variable then via text
+ * It is possible that all methods can fail
+ * Useful if you use both load methods in different application environments (fromEnv for production, fromText for development)
+ * @param key Environment variable key, pass `undefined` if you wish to use the default key
+ * @param text Text to load
+ */
+exports.pubKey.tryLoadAll = function(key, text) {
+    // Try to load from env
+    var fromEnv = exports.pubKey.fromEnv(key);
+
+    // Try to load from text if env failed
+    var fromText = undefined;
+    if (fromEnv === undefined) {
+        fromText = exports.pubKey.fromText(text);
+    }
+
+    // Pick the first successful method, or set undefined
+    if (fromEnv !== undefined) {
+        exports.pubKey.data = fromEnv;
+    } else if (fromText !== undefined) {
+        exports.pubKey.data = fromText;
+    } else {
+        exports.pubKey.data = undefined;
+    }
+};
+
+/**
+ * Load the test public key from the test-data directory
+ * @param callback Callback function, called when done loading test key
+ */
+exports.pubKey.loadTestKey = function(callback) {
+    // Save current public key
+    exports.pubKey.data_before_loadTestKey = exports.pubKey.data;
+
+    // Load key
+    exports.testData._loadFile("test-key/public.asc", function(content) {
+        exports.pubKey.fromText(content);
+        callback();
+    });
+};
+
+/**
+ * Set public key to what it was before pubKey.loadTestKey was called
+ */
+exports.pubKey.unloadTestKey = function() {
+    exports.pubKey.data = exports.pubKey.data_before_loadTestKey;
+};
+
+/**
  * Common helpers
  */
 exports.common = {};
@@ -37,14 +134,11 @@ exports.common = {};
  *                              true  = Message valid
  */
 exports.common.verify = function (msg) {
-    var pubKey = undefined;
+    // Load public key
+    var pubKey = exports.pubKey.data;
 
-    // Check if $CHLNG_POST_PROTO_PUB_KEY enviroment variable is found
-    if (process.env.CHLNG_POST_PROTO_PUB_KEY !== undefined) {
-        // If found, set local var
-        pubKey = process.env.CHLNG_POST_PROTO_PUB_KEY;
-    } else {
-        // If not found return -1 error code
+    // Check public key isn't empty
+    if (pubKey === undefined) {
         return [undefined, -1];
     }
 
@@ -510,4 +604,5 @@ exports.test = function(host, port, path, onFinish) {
     callback();
 };
 
+exports.pubKey.loadEnv();
 module.exports = exports;
