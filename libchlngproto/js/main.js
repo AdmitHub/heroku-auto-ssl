@@ -54,7 +54,13 @@ exports.common.verify = function (msg) {
         var keyObj = openpgp.key.readArmored(pubKey).keys;
 
         // Create OpenPGPjs message object
-        var msgObj = openpgp.message.readArmored(msg);
+        try {
+            var msgObj = openpgp.message.readArmored(msg);
+        } catch (e) {
+            console.error("Error loading message: ", msg);
+            console.error("Error: ", e.message);
+            return [undefined, -2];
+        }
 
         // Get message content before we do anything else
         var msgTxt = msgObj.getText().trim();
@@ -64,18 +70,21 @@ exports.common.verify = function (msg) {
         // Check obj only has 1 key, if it has more than one than we are in trouble
         //      (since we only imported one)
         if (verif.length !== 1) {
+            console.error("Error more than one public key loaded");
             return [msgTxt, -2];
         }
 
         // For convenience sake set verif object to its only element
         verif = verif[0];
-        // If valid is null than that means something is wrong with our public key
-        if (verif.valid === null) {
-            return [msgTxt, -2];
+
+        var valid = true;
+
+        if (verif.valid === false || verif.valid === null) {
+            valid = false;
         }
 
         // If all is well then return status
-        return [msgTxt, verif.valid];
+        return [msgTxt, valid];
     } catch(e) {
         // Log error and return -2 error code if something went wrong
         console.error("Error verifying message:", e);
@@ -99,7 +108,7 @@ exports.common.verifyAndSendErrors = function (msg, send) {
     } else if (resCode === -2) {
         send(500, "ERROR");
     } else if (resCode === false) {
-        send(404, "NOT FOUND");
+        send(404);
     }
 
     return verif;
@@ -116,6 +125,12 @@ exports.endpoints = {};
  * @param send Method which matches `function send (statusCode, textResponse)`
  */
 exports.endpoints.check = function (body, send) {
+     // Check body isn't empty
+    if (body.length === 0) {
+        send(400, "BAD BODY");
+        return;
+    }
+
     // Verify request
     var verif = exports.common.verifyAndSendErrors(body, send);
     var txt = verif[0];
@@ -134,7 +149,7 @@ exports.endpoints.check = function (body, send) {
     }
 
     // Send ok response if all is well
-    send(200, "OK")
+    send(200, "OK");
 };
 
 /**
@@ -143,6 +158,12 @@ exports.endpoints.check = function (body, send) {
  * @param send Method which matches `function send (statusCode, textResponse)`
  */
 exports.endpoints.post = function (body, send) {
+    // Check body isn't empty
+    if (body.length === 0) {
+        send(400, "BAD BODY");
+        return;
+    }
+
     // Verify request
     var verif = exports.common.verifyAndSendErrors(body, send);
     var txt = verif[0];
@@ -190,14 +211,14 @@ exports.testData.testKey.private = "";
  * Sample text signed by various keys
  */
 exports.testData.signedText = [];
-exports.testData.signedText[0] = { clear: "", signed: "" };
-exports.testData.signedText[1] = { clear: "", signed: "" };
-exports.testData.signedText[2] = { clear: "", signed: "" };
-exports.testData.signedText[3] = { clear: "", signed: "" };
-exports.testData.signedText[4] = { clear: "", signed: "" };
-exports.testData.signedText[5] = { clear: "", signed: "" };
-exports.testData.signedText[6] = { clear: "", signed: "" };
-exports.testData.signedText[7] = { clear: "", signed: "" };
+exports.testData.signedText[0] = { clear: "", signed: "", annotation: "" };
+exports.testData.signedText[1] = { clear: "", signed: "", annotation: "" };
+exports.testData.signedText[2] = { clear: "", signed: "", annotation: "" };
+exports.testData.signedText[3] = { clear: "", signed: "", annotation: "" };
+exports.testData.signedText[4] = { clear: "", signed: "", annotation: "" };
+exports.testData.signedText[5] = { clear: "", signed: "", annotation: "" };
+exports.testData.signedText[6] = { clear: "", signed: "", annotation: "" };
+exports.testData.signedText[7] = { clear: "", signed: "", annotation: "" };
 
 /**
  * A functon specifically made for loading test data from files
@@ -256,6 +277,7 @@ exports.testData.load = function() {
                 var i = exports.testData.signedText[2];
                 i.clear = "OK?";
                 i.signed = content;
+                i.annotation = "wrong keypair";
             }
         ],
         [
@@ -264,6 +286,7 @@ exports.testData.load = function() {
                 var i = exports.testData.signedText[3];
                 i.clear = "url=/sslverify&content=supersecret";
                 i.signed = content;
+                i.annotation = "wrong keypair";
             }
         ],
         [
@@ -334,7 +357,9 @@ exports._testEndpoint_printErrors = function(endpoint, errors, errorMessages, ca
  *                  - code = Response code did not match
  * @private
  */
-exports._testEndpoint = function(serverInfo, requestMethod, requestEndpoint, requestBody, expectedCode, expectedBody, callback) {
+exports._testEndpoint = function(serverInfo, requestMethod, requestEndpoint, requestSignTextIndex, expectedCode, expectedBody, callback) {
+    var requestBody = exports.testData.signedText[requestSignTextIndex].signed;
+
     // Prepare http request options
     var requestOptions = {
         method: requestMethod,
@@ -392,7 +417,10 @@ exports._testEndpoint = function(serverInfo, requestMethod, requestEndpoint, req
         exports._testEndpoint_printErrors(requestEndpoint, errors, errorMessages, callback);
     });
 
+    // Add request body
     request.write(requestBody);
+
+    // "End" request, fires off request
     request.end();
 };
 
@@ -402,10 +430,11 @@ exports._testEndpoint = function(serverInfo, requestMethod, requestEndpoint, req
  * @param host Host of server to test (Do no include http)
  * @param port Port of server to test
  * @param path Path infront of Challenge Post protocol
+ * @param onFinish Callback for test process, function of signature: `function(passed, results)`
  * @return True if server is compliant, false if not.
  *         If false is returned look in console for information on why test failed
  */
-exports.test = function(host, port, path) {
+exports.test = function(host, port, path, onFinish) {
     // Load test data
     exports.testData.load();
 
@@ -417,9 +446,58 @@ exports.test = function(host, port, path) {
         path: path
     };
 
-    exports._testEndpoint(serverInfo, "POST", "/check", exports.testData.signedText[0].signed, 200, "OK", function(ok, errors) {
-        console.log(ok, errors);
-    });
+    // Define matrix of tests
+    var tests = [
+        // method, endpoint, signed text index, expected code, expected body, [server info]
+        ["POST", "/check", 0, 200, "OK"],
+        ["POST", "/check", 4, 400, "BAD BODY"],
+        ["POST", "/post", 1, 200, "OK"],
+        ["GET", "/sslverify", 0, 200, "supersecret", {host: host, port: port, path: ""}],
+        ["POST", "/post", 5, 400, "BAD BODY"],
+        ["POST", "/post", 6, 400, "BAD BODY"],
+        ["POST", "/post", 3, 404, "Not Found"]
+    ];
+
+    // Store results as they come in
+    var testResults = [];
+
+    // Recursive function that calls next test in `tests`
+    var testI = -1;
+    var callback = function(ok, errors) {
+        // If this isn't the first loop (Because there is no test at index -1)
+        if (testI !== -1) {
+            // Store test results
+            testResults[testI] = [ok, errors];
+
+            // Print test results
+            var test = tests[testI];
+            var requestBody = exports.testData.signedText[test[2]];
+            console.log("[" + testI + "] " + test[0] + " " + test[1] + " [" + (test[2] + 1) + "] \"" + requestBody.clear + "\" (" + requestBody.annotation + ") => " + ok + ", " + errors);
+        }
+
+        // After storing previous test results, fire off next test
+        testI += 1;
+
+        if (testI < tests.length) { // If haven't reached end of array
+            // Fire off test
+            var test = tests[testI];
+            exports._testEndpoint(test.length === 6 ? test[5] : serverInfo, test[0], test[1], test[2], test[3], test[4], callback);
+        } else { // Tests are all done
+            var allPassed = true;
+
+            testResults.forEach(function(result) {
+                if (result[0] === false) {
+                    allPassed = false;
+                }
+            });
+
+            // Call callback
+            onFinish(allPassed, testResults);
+        }
+    };
+
+    // Call while testI=-1 which marks first run
+    callback();
 };
 
 module.exports = exports;
