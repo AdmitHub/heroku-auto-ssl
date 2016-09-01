@@ -1,6 +1,6 @@
 {
   "name": "libchlngproto",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Client for the Challenge Post protocol used by Heroku Auto SSL",
   "main": "js/main.js",
   "scripts": {

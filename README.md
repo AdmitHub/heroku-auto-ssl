@@ -168,3 +168,4 @@ sudo letsencrypt certonly --dry-run --email noahhuppert@gmail.com --domain www.n
 - 1.3.0 - Fixed load test data function
 - 1.4.0 - Added programmatic ways to set the public key used to sign requests
 - 1.4.1 - Fixed to called `pubKey.fromEnv()` instead of `pubKey.loadEnv()`
+- 1.4.2 - Fixed public key loading functions

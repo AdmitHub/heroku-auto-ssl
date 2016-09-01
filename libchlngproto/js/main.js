@@ -45,7 +45,7 @@ exports.pubKey.fromText = function(text) {
     }
 
     // If all good, set
-    exports.pubKey._data = text;
+    exports.pubKey.data = text;
 };
 
 /**
@@ -66,7 +66,7 @@ exports.pubKey.fromEnv = function(key) {
         return;
     }
 
-    exports.pubKey._data = process.env[key];
+    exports.pubKey.data = process.env[key];
 };
 
 /**
