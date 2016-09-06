@@ -22,6 +22,27 @@ var exports = {};
 exports.currentChallenge = { url: "", content: "" };
 
 /**
+ * Helpers for clients using this library
+ */
+exports.clientHelpers = {};
+
+/**
+ * Useful function for making a send function when using ExpressJS
+ * @param res Express response object
+ * @returns {Function} send function compatible with endpoint functions.
+ */
+exports.clientHelpers.makeSendFuncExpress = function(res) {
+    return function(code, body) {
+        if (body !== undefined) {
+            res.status(code).send(body);
+            return;
+        }
+
+        res.sendStatus(code);
+    };
+};
+
+/**
  * Methods and information relating to the public key used to verify incoming requests
  * @type {{}}
  */

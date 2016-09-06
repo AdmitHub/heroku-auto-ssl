@@ -54,6 +54,7 @@ var libchlngproto = require("../heroku-auto-ssl/libchlngproto/js");
 var app = express();
 app.use(bodyParser.text());
 
+// If you are using ExpressJS this function has been added as the helper `libchlngproto.clientHelpers.makeSendFuncExpress(res)`.
 function sendFunc(res) {
 	return function(code, body) {
 		if (body !== undefined) {
@@ -169,3 +170,4 @@ sudo letsencrypt certonly --dry-run --email noahhuppert@gmail.com --domain www.n
 - 1.4.0 - Added programmatic ways to set the public key used to sign requests
 - 1.4.1 - Fixed to called `pubKey.fromEnv()` instead of `pubKey.loadEnv()`
 - 1.4.2 - Fixed public key loading functions
+- 1.4.3 - Added client helper for making a send function when using ExpressJS
