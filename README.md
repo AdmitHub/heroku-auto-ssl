@@ -171,3 +171,4 @@ sudo letsencrypt certonly --dry-run --email noahhuppert@gmail.com --domain www.n
 - 1.4.1 - Fixed to called `pubKey.fromEnv()` instead of `pubKey.loadEnv()`
 - 1.4.2 - Fixed public key loading functions
 - 1.4.3 - Added client helper for making a send function when using ExpressJS
+- 1.5.0 - Next semver minor update that encompasses all changes from 1.4.0 forward

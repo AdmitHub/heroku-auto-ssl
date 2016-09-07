@@ -1,4 +1,4 @@
-import subprocess, sys, shutil, json, re
+import subprocess, sys, shutil, json, re, urllib.request
 
 # Simple logging helpers
 TAG_ERR    = "[ERROR ] "
@@ -227,3 +227,16 @@ if ok_prompt_res == 1:
     log_err("Exiting...")
     sys.exit(1)
 
+# Check that servers are Challenge Post protocol compliant
+log_info("Checking domains for Challenge Post protocol compliance");
+
+all_domains_have_cpp = True
+
+for site in sites_conf:
+    url = "http://" + site['cert_url'] + site['challenge_proto']['root_url'] + "/check"
+
+    req = urllib.request.urlopen(url)
+    b = req.read().decode("utf-8");
+    log_info("Checking and got " + b);
+
+    log_info("Checking url " + url)

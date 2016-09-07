@@ -223,7 +223,7 @@ exports.common.verifyAndSendErrors = function (msg, send) {
     } else if (resCode === -2) {
         send(500, "ERROR");
     } else if (resCode === false) {
-        send(404);
+        send(404, "Not Found");
     }
 
     return verif;
@@ -587,6 +587,9 @@ exports.test = function(host, port, path, onFinish) {
             // Print test results
             var test = tests[testI];
             var requestBody = exports.testData.signedText[test[2]];
+	    if (errors.length !== 0) {
+		    console.log("[" + testI + "] ^Test errors");
+	    }
             console.log("[" + testI + "] " + test[0] + " " + test[1] + " [" + (test[2] + 1) + "] \"" + requestBody.clear + "\" (" + requestBody.annotation + ") => " + ok + ", " + errors);
         } else { // If first loop print header documenting test result output
             console.log("[?1] ?2 ?3 [?4] \"?5\" (?6) => ?7\n" +

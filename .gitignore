@@ -4,6 +4,7 @@
 
 # auto-ssl
 sites.json
+.cache
 
 # NodeJS
 node_modules
