@@ -86,7 +86,7 @@ def gen_signed_txt(txt, key_id, password_reprompts=1):
         prompt_key_password(key_id)
 
     if txt not in signed_messages[key_id]['signed_text']:
-        sign = subprocess.run(["./gen_signed_txt.sh", "OK?", signed_messages[key_id]['password'], key_id], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        sign = subprocess.run(["./scripts/gen_signed_txt.sh", "OK?", signed_messages[key_id]['password'], key_id], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         if sign.returncode == 0:
             out = decode_output(sign.stdout)
@@ -117,10 +117,6 @@ def make_post(url, body):
     except urllib.error.HTTPError as error:
         return error.read().decode()
 
-# Notify if dry run
-if args.dry_run:
-    log_info("Dry run enabled")
-
 # Check for dependencies
 heroku_cli_path = shutil.which("heroku")
 certbot_cli_path = shutil.which("letsencrypt")
@@ -144,21 +140,29 @@ parser.add_argument("--skip-preflight-checks",
                     dest="skip_preflight",
                     action="store_const",
                     const=True,
-                    default=False)
+                    default=False,
+                    help="Skips all preflight checks that this tool would normally perform")
 parser.add_argument("--domains-ok",
                     dest="domains_ok",
                     action="store_const",
                     const=True,
-                    default=False)
+                    default=False,
+                    help="Assume all domains parsed from sites.json are correct")
 parser.add_argument("--email",
-                    required=True)
+                    required=True,
+                    help="Email to use when generating ssl cert")
 parser.add_argument("--dry-run",
                     dest="dry_run",
                     action="store_const",
                     const=True,
-                    default=False)
+                    default=False,
+                    help="Generates a dummy ssl certificate and does not apply to Heroku")
 
 args = parser.parse_args()
+
+# Notify if dry run
+if args.dry_run:
+    log_info("Dry run enabled")
 
 # Check Heroku logged in
 if args.skip_preflight == False:
@@ -352,14 +356,20 @@ if all_domains_have_cpp == False:
     sys.exit()
 
 # Request certs from Lets Encrypt
-domains_arg_list = []
+root_pw = prompt("Please enter your root password (Not stored, required by Lets Encrypt)")
+get_certs_args = [
+    "./scripts/gen_ssl_certs.sh", root_pw,
+    "--email", args.email
+]
 
 for domain in domains:
-    domains_arg_list.push("--domain " + domain)
-
-get_certs_dry_run_param = ""
+    get_certs_args.append("-d " + domain)
 
 if args.dry_run == True:
-    get_certs_dry_run_param = "--dry-run"
+    get_certs_args.append("--dry-run")
 
-get_certs = subprocess.run(["letsencrypt", "certsonly", get_certs_dry_run_param, "--email", args.email])
+get_certs = subprocess.run(get_certs_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+log_info(str(get_certs.returncode))
+log_info(decode_output(get_certs.stdout))
+log_err(decode_output(get_certs.stderr))
+log_info("Args: " + " ".join(get_certs_args))
