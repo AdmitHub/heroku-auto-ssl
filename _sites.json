@@ -1,0 +1,42 @@
+[
+  {
+    "heroku_app": "aboutadmissions",
+    "cert_url": "college.admithub.com",
+    "challenge_proto": {
+      "priv_key": "12345678",
+      "root_url": "/chlngproto"
+    }
+  },
+  {
+    "heroku_app": "chooser-prod",
+    "cert_url": "www.admithub.com",
+    "challenge_proto": {
+      "priv_key": "12345678",
+      "root_url": "/chlngproto"
+    }
+  },
+  {
+    "heroku_app": "project-phoenix-prod",
+    "cert_url": "app.admithub.com",
+    "challenge_proto": {
+      "priv_key": "12345678",
+      "root_url": "/chlngproto"
+    }
+  },
+  {
+    "heroku_app": "sms-load-balancer",
+    "cert_url": "load.admithub.com",
+    "challenge_proto": {
+      "priv_key": "12345678",
+      "root_url": "/chlngproto"
+    }
+  },
+  {
+    "heroku_app": "chooser-admin",
+    "cert_url": "admin.admithub.com",
+    "challenge_proto": {
+      "priv_key": "12345678",
+      "root_url": "/chlngproto"
+    }
+  }
+]
