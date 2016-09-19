@@ -68,8 +68,6 @@ function sendFunc(res) {
 // Register check endpoint in place of your choosing
 app.post("/chlngproto/check", function (req, res) {
     // Call handler function
-    // Notice how we pass the send method with bind, this is so the "this"
-    // object is properly set within the send method
     libchlngproto.endpoints.check(req.body, sendFunc(res));
 });
 
@@ -82,7 +80,6 @@ app.post("/chlngproto/post", function (req, res) {
 // Register handler in application to catch every request
 app.get("*", function (req, res) {
     // Check to see if request url matches challenge url
-    console.log("----", req.path);
     if (req.path === libchlngproto.currentChallenge.url) {
             // Send challenge content
             res.status(200).send(libchlngproto.currentChallenge.content);
