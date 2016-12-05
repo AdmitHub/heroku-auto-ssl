@@ -1,0 +1,6 @@
+# Tools
+dehydrated
+
+# Certs
+*.pem
+*.csr
