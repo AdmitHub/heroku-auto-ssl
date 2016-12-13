@@ -13,6 +13,7 @@
 	- Change the value of `CF_KEY` (Last option in `config` file) to the value found in [Cloudflare Settings](https://www.cloudflare.com/a/account/my-account) > `Account` > `API Key` > `Global API Key`.
 	- **!!Never Commit this value!!**
 		- This key provides complete access to our CloudFlare account which includes DNS options
+- 3.
 
 # Tools Used
 ## Dehydrated
@@ -39,3 +40,12 @@ Configuration file for Dehydrated. See `config.example` for more info.
 
 ## domains.txt
 Configuration file which lets Dehydrated know which domains and subdomains to obtain SSL certificates for.
+
+Each line represents a new domain. Entries are seperated by spaces.
+The first entry is the root domain (Domain with no subdomains ex: admithub.com). Every entry after that is a subdomain (Including the
+root domain ex: www.admithub.com admin.admithub.com).  
+
+Another way of explaining it:
+```
+<root_domain> <sub_domain_1>.<root_domain> <sub_domain_2>.<root_domain>
+```
