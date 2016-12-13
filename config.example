@@ -1,16 +1,16 @@
 # Dehydrated config
 # -- -- Type of challenge used to verify domain ownership, `dns-01` challenges
 #       require the owner of the domain to add a DNS entry.
-CHALLENGETYPE="dns-01"
+export CHALLENGETYPE="dns-01"
 # -- -- Domain to store SSL certificates in
-CERTDIR="${BASEDIR}/certs"
+export CERTDIR="${BASEDIR}/certs"
 # -- -- Hook to run throughout lifecycle of proccess
-HOOK="dehydrated/hooks/cloudflare/hook.py"
+export HOOK="dehydrated/hooks/cloudflare/hook.py"
 # -- -- Email used during certficate registration
-CONTACT_EMAIL="andrew@admithub.com"
+export CONTACT_EMAIL="andrew@admithub.com"
 
 # Cloudflare Hook config
 # -- -- Cloudflare account email address
-CF_EMAIL="andrew@admithub.com"
+export CF_EMAIL="andrew@admithub.com"
 # -- -- Cloudflare account Global API Key
-CF_KEY=""
+export CF_KEY=""
