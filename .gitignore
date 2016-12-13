@@ -2,9 +2,13 @@
 config
 
 # Tools
+# -- Dehydrated
 dehydrated
+accounts
+# -- Vim
 *.swp
 
 # Certs
+certs
 *.pem
 *.csr
