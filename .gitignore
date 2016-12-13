@@ -1,5 +1,9 @@
+# Configuration
+config
+
 # Tools
 dehydrated
+*.swp
 
 # Certs
 *.pem
