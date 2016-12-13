@@ -1,13 +1,13 @@
 # Instructions on how to update AdmitHub's SSL certificates
 - 1. Clone down a tool for Lets Encrypt called Dehydrated: `git clone https://github.com/lukas2511/dehydrated`
-	- 1.1. Clone down a plugin for Dehydrated
+	- Clone down a plugin for Dehydrated
 		- `cd dehydrated`
 		- `mkdir hooks`
 		- `git clone https://github.com/kappataumu/letsencrypt-cloudflare-hook hooks/cloudflare`
-	- 1.2. Check which version of Python you are running (With `python --version`) and run the following command in the `dehydrated` directory.
-		- 1.2.1. If Python `2.X.X`
+	- Check which version of Python you are running (With `python --version`) and run the following command in the `dehydrated` directory.
+		- If Python `2.X.X`
 			- `pip install -r hooks/cloudflare/requirements-python-2.txt`
-		- 1.2.2. If Python `3.X.X`
+		- If Python `3.X.X`
 			- `pip install -r hooks/cloudflare/requirements.txt`
 		- If you get a permission error try adding the `--user` flag
 - 2. Create a copy of `config.example` named `config`
@@ -15,6 +15,25 @@
 		- This key provides complete access to your CloudFlare account which includes DNS options
 	- Change the value of `CF_KEY` (Last option in `config` file) to the value found in [Cloudflare Settings](https://www.cloudflare.com/a/account/my-account) > `Account` > `API Key` > `Global API Key`.
 - 3. Obtain the SSL certificates by running the following in the root of this repository: `./dehydrated/dehydrated -c`
+	- Your newly obtained SSL certificates should be in the `certs/admithub.com` directory under
+	- This proccess can take anywhere from 1 to 20 minutes so be patient.
+	- The reason behind this is that we are using DNS to verify our domains with Lets Encrypt. For this to work successfully we have
+	to wait for DNS changes to propigate, how long this takes is basically random.
+- 4. Go to the [installation documentation](https://devcenter.heroku.com/articles/heroku-cli#download-and-install) and follow the instructions for your operating system.
+	- Login to the Heroku CLI with the `heroku login` command
+- Update each of the Heroku applications with this command from the root of this repository:
+	- `heroku --app <App Name> certs:update certs/admithub.com/cert.pem certs/admithub.com/privkey.pem`
+		- Make sure to replace `<App Name>` with your Heroku app's name.
+		- `cert.pem` is the signed SSL certificate file.
+		- `privkey.pem` is the private key file for the SSL certificate.
+	- This command should be run once for each of the following Heroku apps:
+		- `aboutadmissions` (college.admithub.com)
+		- `chooser-admin` (admin.admithub.com)
+		- `chooser-prod` (www.admithub.com)
+		- `sms-load-balancer` (load.admithub.com)
+	- It typically takes around 5 to 7 minutes for the new SSL certificate to take effect.
+		- Also beware when checking in browsers that some may cache certificates per session. So you may have to open new windows to see the new ssl certificates.
+- 5.
 
 # Tools Used
 ## Dehydrated
