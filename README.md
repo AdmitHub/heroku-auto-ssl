@@ -9,6 +9,7 @@
 			- `pip install -r hooks/cloudflare/requirements-python-2.txt`
 		- 1.2.2. If Python `3.X.X`
 			- `pip install -r hooks/cloudflare/requirements.txt`
+		- If you get a permission error try adding the `--user` flag
 - 2. Create a copy of `config.example` named `config`
 	- **!!Never Commit this value!!**
 		- This key provides complete access to your CloudFlare account which includes DNS options
