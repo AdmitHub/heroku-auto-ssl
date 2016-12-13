@@ -31,9 +31,10 @@
 		- `chooser-admin` (admin.admithub.com)
 		- `chooser-prod` (www.admithub.com)
 		- `sms-load-balancer` (load.admithub.com)
-	- It typically takes around 5 to 7 minutes for the new SSL certificate to take effect.
+	- It typically takes around 5 to 15 minutes for the new SSL certificate to take effect.
 		- Also beware when checking in browsers that some may cache certificates per session. So you may have to open new windows to see the new ssl certificates.
-- 5.
+- 5. Once done delete the `certs` directory so you don't have all of AdmitHub's super secret SSL certificates laying around on your computer.
+	- You can back them up but be sure to encrypt the backups in some form.
 
 # Tools Used
 ## Dehydrated
