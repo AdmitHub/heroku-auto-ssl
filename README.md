@@ -10,6 +10,7 @@
 		- If Python `3.X.X`
 			- `pip install -r hooks/cloudflare/requirements.txt`
 		- If you get a permission error try adding the `--user` flag
+		- `cd ..`
 - 2. Create a copy of `config.example` named `config`
 	- **!!Never Commit this value!!**
 		- This key provides complete access to your CloudFlare account which includes DNS options
@@ -19,7 +20,7 @@
 	- This proccess can take anywhere from 1 to 20 minutes so be patient.
 	- The reason behind this is that we are using DNS to verify our domains with Lets Encrypt. For this to work successfully we have
 	to wait for DNS changes to propigate, how long this takes is basically random.
-- 4. Go to the [installation documentation](https://devcenter.heroku.com/articles/heroku-cli#download-and-install) and follow the instructions for your operating system.
+- 4. Go to the [Heroku Toolbelt installation documentation](https://devcenter.heroku.com/articles/heroku-cli#download-and-install) and follow the instructions for your operating system.
 	- Login to the Heroku CLI with the `heroku login` command
 - Update each of the Heroku applications with this command from the root of this repository:
 	- `heroku --app <App Name> certs:update certs/admithub.com/cert.pem certs/admithub.com/privkey.pem`
@@ -73,10 +74,11 @@ Configuration file for Dehydrated. See `config.example` for more info.
 Configuration file which lets Dehydrated know which domains and subdomains to obtain SSL certificates for.
 
 Each line represents a new domain. Entries are seperated by spaces.
-The first entry is the root domain (Domain with no subdomains ex: `admithub.com`). Every entry after that is a subdomain (Including the
+The first entry is the root domain (Domain with no subdomains ex: `admithub.com`). Every entry after that is a subdomain (Containing the
 root domain ex: `www.admithub.com` `admin.admithub.com`).  
 
 Another way of explaining it:
 ```
-root.tld sub1.root.tld sub2.root.tld sub3.root.tld
+root1.tld sub1.root1.tld sub2.root1.tld sub3.root1.tld
+root2.tld sub1.root2.tld sub2.root2.tld sub3.root2.tld
 ```
