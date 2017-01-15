@@ -23,7 +23,7 @@
 - 4. Go to the [Heroku Toolbelt installation documentation](https://devcenter.heroku.com/articles/heroku-cli#download-and-install) and follow the instructions for your operating system.
 	- Login to the Heroku CLI with the `heroku login` command
 - Update each of the Heroku applications with this command from the root of this repository:
-	- `heroku --app <App Name> certs:update certs/admithub.com/cert.pem certs/admithub.com/privkey.pem`
+	- `heroku certs:update certs/admithub.com/cert.pem certs/admithub.com/privkey.pem --app <App Name>`
 		- Make sure to replace `<App Name>` with your Heroku app's name.
 		- `cert.pem` is the signed SSL certificate file.
 		- `privkey.pem` is the private key file for the SSL certificate.
@@ -74,8 +74,8 @@ Configuration file for Dehydrated. See `config.example` for more info.
 Configuration file which lets Dehydrated know which domains and subdomains to obtain SSL certificates for.
 
 Each line represents a new domain. Entries are seperated by spaces.
-The first entry is the root domain (Domain with no subdomains ex: `admithub.com`). Every entry after that is a subdomain (Containing the
-root domain ex: `www.admithub.com` `admin.admithub.com`).  
+The first entry is the root domain (Domain with no subdomains ex: `admithub.com`). Every entry after that is a subdomain containing the
+root domain (ex. for subdomains `www` and `admin`: `www.admithub.com` `admin.admithub.com`).  
 
 Another way of explaining it:
 ```
