@@ -3,12 +3,20 @@ config
 
 # Tools
 # -- Dehydrated
-dehydrated
+/dehydrated/*
+!dehydrated/hooks/heroku-auto-ssl/hook.py
 accounts
+
 # -- Vim
 *.swp
+
+# -- Jetbrains
+.idea
 
 # Certs
 certs
 *.pem
 *.csr
+
+# Logs
+*.log
