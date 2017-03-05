@@ -1,21 +1,16 @@
-# Configuration
+# App
 config
+*.log
 
 # Tools
 # -- Dehydrated
-_dehydrated
+certs
 accounts
+*.pem
+*.csr
 
 # -- Vim
 *.swp
 
 # -- Jetbrains
 .idea
-
-# Certs
-certs
-*.pem
-*.csr
-
-# Logs
-*.log
