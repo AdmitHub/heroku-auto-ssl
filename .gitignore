@@ -1,11 +1,11 @@
 # App
-config
 *.log
 
 # Tools
 # -- Dehydrated
 certs
 accounts
+config
 *.pem
 *.csr
 
