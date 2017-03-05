@@ -1,3 +1,6 @@
 [submodule "dehydrated"]
 	path = dehydrated
 	url = git@github.com:lukas2511/dehydrated.git
+[submodule "hooks/cloudflare"]
+	path = hooks/cloudflare
+	url = https://github.com/kappataumu/letsencrypt-cloudflare-hook
