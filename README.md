@@ -1,4 +1,11 @@
 # Instructions on how to update AdmitHub's SSL certificates
+- 1. Initialize submodules
+    - Run `git submodule init` to initialize submodules listed in `.gitmodules`
+    - Run `git submodule update` to clone down submodule content
+- 2. Link `hooks` directory to `dehydrated/hooks` dir
+    - Run `make link-hooks` to link the `./hooks` directory to the `dehydrated/hooks` directory
+    - This will add custom code to verify the `admithub.com` domain to Lets Encrypt and to deploy the provisioned SSL 
+      certs when the time comes.
 - 1. Clone down a tool for Lets Encrypt called Dehydrated: `git clone https://github.com/lukas2511/dehydrated`
 	- Clone down a plugin for Dehydrated
 		- `cd dehydrated`

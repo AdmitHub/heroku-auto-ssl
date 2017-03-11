@@ -4,7 +4,7 @@ import sys, logging, getpass, subprocess, os, json
 # map of domains and their Heroku apps
 _heroku_domain_mapping = None
 """Get Heroku app Id for provided domain
-This information is gotten from HEROKU_AUTO_SSL_DOMAIN_MAPPING
+This in../hooks hooksformation is gotten from HEROKU_AUTO_SSL_DOMAIN_MAPPING
 environment variable. This environment variable should be a JSON kv map.
 Keys should be the domain. Values should be the Heroku app Ids.
 
