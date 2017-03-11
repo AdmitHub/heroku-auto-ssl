@@ -3,3 +3,6 @@ setup-hooks:
 
 link-hooks:
 	cd dehydrated && ln -s ../hooks hooks
+
+run:
+	./dehydrated/dehydrated -c
