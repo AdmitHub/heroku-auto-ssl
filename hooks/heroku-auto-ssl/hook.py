@@ -1,7 +1,5 @@
-#1/usr/bin/env python
-import sys, logging, getpass, subprocess, os, json
-
-
+#!/usr/bin/env python
+import sys, logging, getpass, subprocess, os
 
 # str to log with identifying info
 _identifying_info = None
@@ -46,6 +44,11 @@ def get_identifying_info():
 
     return _identifying_info
 
+
+# Determines if file path is exe, credit to author of which function (See docs)
+def is_exe(fpath):
+    return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
 """Command which emulates `which` UNIX command
 Credit to users Jay(https://stackoverflow.com/users/20840/jay) and harmv(https://stackoverflow.com/users/328384/harmv)
 on SO for the code: http://stackoverflow.com/a/377028/1478191
@@ -60,10 +63,6 @@ Returns:
     - None: If executable is not found anywhere
 """
 def which(program):
-    import os
-    def is_exe(fpath):
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
     fpath, fname = os.path.split(program)
     if fpath:
         if is_exe(program):
@@ -133,11 +132,16 @@ def deploy_cert(args):
     # Deploy certs
     logging.info("Deploying certificates to Heroku apps: {}".format(heroku_app_ids))
 
-    command_parts = ["heroku", "certs:update", cert_file, key_file, "--app", "APP ID"]
+    command_parts = ["heroku", "certs:update", cert_file, key_file, "--app", "APP ID", "--confirm", "APP ID"]
     for id in heroku_app_ids:
         # Set Heroku app id in command
         command_parts[len(command_parts) - 1] = id
-        print("Would run: $ {}".format(" ".join(command_parts)))
+        command_parts[len(command_parts) - 3] = id
+
+        # Run
+        proc = subprocess.Popen(command_parts)
+        logging.debug("Ran: $ {}".format(" ".join(command_parts)))
+        logging.info("Deployed certificate for Heroku app: {}".format(id))
 
 # END HOOKS
 
