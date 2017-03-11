@@ -7,6 +7,11 @@ if [[ ! -d "./hooks/cloudflare" ]]; then
     exit 1
 fi
 
+if [[ ! -d "./dehydrated" ]]; then
+    echo "Please clone down submodule ./dehydrated"
+    exit 2
+fi
+
 # Install cloudflare hook pip requirements (Separate file for Python 3 vs 2)
 if [[ "$(python --version)" =~ "3" ]]; then
     pip install --user -r "./hooks/cloudflare/requirements.txt"

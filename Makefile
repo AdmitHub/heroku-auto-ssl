@@ -4,5 +4,6 @@ setup-hooks:
 link-hooks:
 	cd dehydrated && ln -s ../hooks hooks
 
-run:
-	./dehydrated/dehydrated -c
+d-run:
+	./dehydrated/dehydrated --register --accept-terms
+	./dehydrated/dehydrated -c -k "dehydrated/hooks/heroku-auto-ssl/hook.py"

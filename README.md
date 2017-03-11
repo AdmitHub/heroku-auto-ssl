@@ -12,7 +12,7 @@
 	- Change the value of `CF_KEY` (Last option in `config` file) to the value found in [Cloudflare Settings](https://www.cloudflare.com/a/account/my-account) > `Account` > `API Key` > `Global API Key`.
 - 4. Go to the [Heroku Toolbelt installation documentation](https://devcenter.heroku.com/articles/heroku-cli#download-and-install) and follow the instructions for your operating system.
 	- Login to the Heroku CLI with the `heroku login` command
-- 5. Obtain the SSL certificates by running the following in the root of this repository: `make run`
+- 5. Obtain the SSL certificates by running the following in the root of this repository: `make d-run`
 	- Your newly obtained SSL certificates should be in the `certs/admithub.com` directory
 	- This process can take anywhere from 1 to 20 minutes so be patient.
 	- The reason behind this is that we are using DNS to verify our domains with Lets Encrypt. For this to work successfully we have

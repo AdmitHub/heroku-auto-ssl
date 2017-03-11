@@ -1,30 +1,7 @@
 #1/usr/bin/env python
 import sys, logging, getpass, subprocess, os, json
 
-# list of Heroku apps to update
-_heroku_app_ids = None
-_HEROKU_APP_IDS_ENV_KEY = "HEROKU_AUTO_SSL_APPS"
-def get_heroku_app_ids():
-    global _heroku_app_ids
-    # Lazy load
-    if _heroku_app_ids is None:
-        env = os.environ.get(_HEROKU_APP_IDS_ENV_KEY)
 
-        # Check if environment variavle is set
-        if env is None:
-            err_txt = "{} not set".format(_HEROKU_APP_IDS_ENV_KEY)
-            logging.exception(err_txt)
-            raise ValueError(err_txt)
-
-        # Parse env into list
-        try:
-            _heroku_app_ids = json.loads(env)
-        except json.JSONDecodeError as e:
-            err_txt = "Error parsing {} environment variable to json".format(_HEROKU_APP_IDS_ENV_KEY)
-            logging.exception(err_txt)
-            raise SyntaxError(err_txt)
-
-    return _heroku_app_ids
 
 # str to log with identifying info
 _identifying_info = None
@@ -150,26 +127,17 @@ def deploy_cert(args):
     # Extract args
     domain, key_file, cert_file, full_chain_file, chain_file, timestamp = args
 
-    # Get Heroku app Id for domain
-    heroku_app_ids = None
-    try:
-        heroku_app_ids = get_heroku_app_ids()
-        logging.debug("Got Heroku Ids=\"{}\"".format(heroku_app_ids))
-    except ValueError as e:  # If ENV['HEROKU_AUTO_SSL_DOMAIN_MAPPING'] isn't set
-        logging.exception("Failed to deploy certificate for domain=\"{}\", HEROKU_AUTO_SSL_DOMAIN_MAPPING environment variable not set".format(domain))
-        return
-    except SyntaxError as e:
-        logging.exception("Failed to deploy certificate for domain=\"{}\", HEROKU_AUTO_SSL_DOMAIN_MAPPING syntax invalid".format(domain))
-        return
+    # list of Heroku apps to update
+    heroku_app_ids = ["aboutadmissions", "chooser-admin", "chooser-prod", "sms-load-balancer", "project-phoenix-prod"]
 
     # Deploy certs
-    logging.info("Deploying certificates to Heroku apps: {}".format(_heroku_app_ids))
+    logging.info("Deploying certificates to Heroku apps: {}".format(heroku_app_ids))
 
     command_parts = ["heroku", "certs:update", cert_file, key_file, "--app", "APP ID"]
     for id in heroku_app_ids:
         # Set Heroku app id in command
         command_parts[len(command_parts) - 1] = id
-        print("Would run: $ {}".format(command_parts))
+        print("Would run: $ {}".format(" ".join(command_parts)))
 
 # END HOOKS
 
