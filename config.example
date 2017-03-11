@@ -10,14 +10,8 @@ export HOOK="dehydrated/hooks/cloudflare/hook.py"
 export CONTACT_EMAIL="andrew@admithub.com"
 
 # Heroku Auto SSL config
-# Map of domains and their Heroku apps
-export HEROKU_AUTO_SSL_DOMAIN_MAPPING="{\
-\"college.admithub\": \"aboutadmissions\",\
-\"admin.admithub.com\": \"chooser-admin\",\
-\"www.admithub.com\": \"chooser-prod\",\
-\"load.admithub.com\": \"sms-load-balancer\",
-\"chat.admithub.com\": \"project-phoenix-prod"\
-}"
+# List of Heroku apps to update
+export HEROKU_AUTO_SSL_APPS="[\"aboutadmissions\", \"chooser-admin\", \"chooser-prod\", \"sms-load-balancer\", \"project-phoenix-prod\"]"
 
 # Cloudflare Hook config
 # -- -- Cloudflare account email address

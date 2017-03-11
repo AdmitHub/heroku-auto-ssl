@@ -1,55 +1,30 @@
 #1/usr/bin/env python
 import sys, logging, getpass, subprocess, os, json
 
-# map of domains and their Heroku apps
-_heroku_domain_mapping = None
-"""Get Heroku app Id for provided domain
-This in../hooks hooksformation is gotten from HEROKU_AUTO_SSL_DOMAIN_MAPPING
-environment variable. This environment variable should be a JSON kv map.
-Keys should be the domain. Values should be the Heroku app Ids.
-
-"Lazy Parses" JSON from environment variable.
-
-Args:
-    - domain (str): Domain to get Heroku app Id for
-
-Returns:
-    - str: Heroku App Id for provided domain
-
-Raises:
-    - ValueError: If HEROKU_AUTO_SSL_DOMAIN_MAPPING environment variable is not set
-    - SyntaxError: If contents of HEROKU_AUTO_SSL_DOMAIN_MAPPING environment variable fail to be parsed to json
-    - KeyError: If Heroku App id is not specified for given domain
-"""
-def get_heroku_app_id_for_domain(domain):
-    global _heroku_domain_mapping
+# list of Heroku apps to update
+_heroku_app_ids = None
+_HEROKU_APP_IDS_ENV_KEY = "HEROKU_AUTO_SSL_APPS"
+def get_heroku_app_ids():
+    global _heroku_app_ids
     # Lazy load
-    if _heroku_domain_mapping is None:
-        env = os.environ.get("HEROKU_AUTO_SSL_DOMAIN_MAPPING")
+    if _heroku_app_ids is None:
+        env = os.environ.get(_HEROKU_APP_IDS_ENV_KEY)
 
-        # Check if environment variable is set
+        # Check if environment variavle is set
         if env is None:
-            err_txt = "HEROKU_AUTO_SSL_DOMAIN_MAPPING not set"
+            err_txt = "{} not set".format(_HEROKU_APP_IDS_ENV_KEY)
             logging.exception(err_txt)
             raise ValueError(err_txt)
 
-        # Parse HEROKU_AUTO_SSL_DOMAIN_MAPPING to json
+        # Parse env into list
         try:
-            _heroku_domain_mapping = json.loads(env)
+            _heroku_app_ids = json.loads(env)
         except json.JSONDecodeError as e:
-            err_txt = "Error parsing HEROKU_AUTO_SSL_DOMAIN_MAPPING environment variable to json"
+            err_txt = "Error parsing {} environment variable to json".format(_HEROKU_APP_IDS_ENV_KEY)
             logging.exception(err_txt)
             raise SyntaxError(err_txt)
 
-    # Check if domain is given in mapping
-    if domain not in _heroku_domain_mapping:
-        err_txt = "Not Heroku App Id given for domain: \"{}\"".format(domain)
-        logging.exception(err_txt)
-        raise KeyError(err_txt)
-
-    return _heroku_domain_mapping[domain]
-
-
+    return _heroku_app_ids
 
 # str to log with identifying info
 _identifying_info = None
@@ -176,22 +151,25 @@ def deploy_cert(args):
     domain, key_file, cert_file, full_chain_file, chain_file, timestamp = args
 
     # Get Heroku app Id for domain
-    heroku_app_id = None
+    heroku_app_ids = None
     try:
-        heroku_app_id = get_heroku_app_id_for_domain(domain)
-        logging.debug("Got Heroku Id=\"{}\" for domain=\"{}\"".format(heroku_app_id, domain))
+        heroku_app_ids = get_heroku_app_ids()
+        logging.debug("Got Heroku Ids=\"{}\"".format(heroku_app_ids))
     except ValueError as e:  # If ENV['HEROKU_AUTO_SSL_DOMAIN_MAPPING'] isn't set
         logging.exception("Failed to deploy certificate for domain=\"{}\", HEROKU_AUTO_SSL_DOMAIN_MAPPING environment variable not set".format(domain))
         return
     except SyntaxError as e:
         logging.exception("Failed to deploy certificate for domain=\"{}\", HEROKU_AUTO_SSL_DOMAIN_MAPPING syntax invalid".format(domain))
         return
-    except KeyError as e:
-        logging.exception("Failed to deploy certificate for domain=\"{}\", could not find Heroku App Id".format(domain))
-        return
 
-    command_parts = ["heroku", "certs:update", cert_file, key_file, "--app", heroku_app_id]
-    print("Would run: $ {}".format(command_parts))
+    # Deploy certs
+    logging.info("Deploying certificates to Heroku apps: {}".format(_heroku_app_ids))
+
+    command_parts = ["heroku", "certs:update", cert_file, key_file, "--app", "APP ID"]
+    for id in heroku_app_ids:
+        # Set Heroku app id in command
+        command_parts[len(command_parts) - 1] = id
+        print("Would run: $ {}".format(command_parts))
 
 # END HOOKS
 
