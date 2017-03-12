@@ -9,6 +9,10 @@ export HOOK="dehydrated/hooks/cloudflare/hook.py"
 # -- -- Email used during certficate registration
 export CONTACT_EMAIL="andrew@admithub.com"
 
+# Heroku Auto SSL config
+# -- -- Heroku App Ids to update
+export HEROKU_APP_IDS="[\"aboutadmissions\", \"chooser-admin\", \"chooser-prod\", \"sms-load-balancer\", \"project-phoenix-prod\"]"
+
 # Cloudflare Hook config
 # -- -- Cloudflare account email address
 export CF_EMAIL="andrew@admithub.com"
