@@ -2,28 +2,24 @@
 - 1. Initialize submodules
     - Run `git submodule init` to initialize submodules listed in `.gitmodules`
     - Run `git submodule update` to clone down submodule content
-- 2. Link `hooks` directory to `dehydrated/hooks` dir
-    - Run `make link-hooks` to link the `./hooks` directory to the `dehydrated/hooks` directory
-    - This will add custom code to verify the `admithub.com` domain to Lets Encrypt and to deploy the provisioned SSL 
-      certs when the time comes.
-- 3. Create a copy of `config.example` named `config`
+- 2. Create a copy of `config.example` named `config`
 	- **!!Never Commit this value!!**
 		- This key provides complete access to your CloudFlare account which includes DNS options
 	- Change the value of `CF_KEY` (Last option in `config` file) to the value found in [Cloudflare Settings](https://www.cloudflare.com/a/account/my-account) > `Account` > `API Key` > `Global API Key`.
-- 4. Go to the [Heroku Toolbelt installation documentation](https://devcenter.heroku.com/articles/heroku-cli#download-and-install) and follow the instructions for your operating system.
+- 3. Go to the [Heroku Toolbelt installation documentation](https://devcenter.heroku.com/articles/heroku-cli#download-and-install) and follow the instructions for your operating system.
 	- Login to the Heroku CLI with the `heroku login` command
-- 5. Obtain the SSL certificates by running the following in the root of this repository: `make d-run`
+- 4. Obtain the SSL certificates by running the following in the root of this repository: `make d-run`
 	- Your newly obtained SSL certificates should be in the `certs/admithub.com` directory
 	- This process can take anywhere from 1 to 20 minutes so be patient.
 	- The reason behind this is that we are using DNS to verify our domains with Lets Encrypt. For this to work successfully we have
 	to wait for DNS changes to propigate, how long this takes is basically random.
     - It typically takes around 5 to 15 minutes for the new SSL certificate to take effect.
 		- Also beware when checking in browsers that some may cache certificates per session. So you may have to open new windows to see the new ssl certificates.
-- 6. Once done delete the `certs` directory so you don't have all of AdmitHub's super secret SSL certificates laying around on your computer.
+- 5. Once done delete the `certs` directory so you don't have all of AdmitHub's super secret SSL certificates laying around on your computer.
 	- You can back them up but be sure to encrypt the backups in some form.
 	
 # Systems documentation
-This section provides an overview of the Heroku Auto SSL "tool".
+This section provides an overview of the Heroku Auto SSL "tool". 
 The Heroku Auto SSL tool code is actually just a couple hooks for a Lets Encrypt command line tool called Dehydrated 
 (See Tools Used#Dehydrated). 
 
@@ -37,8 +33,8 @@ specific text to their domain DNS. If the values of the `TXT` records posted mat
 they assume you own the domain. 
 
 Heroku Auto SSL uses a Dehydrated hook called `kappataumu/letsencrypt-cloudflare-hook` to automatically post the requested 
-`TXT` records up to the Admithub.com Cloudflare DNS. You must set the `CF_EMAIL` and `CF_KEY` values in the file `config` 
-for this hook to work. 
+`TXT` records up to the Admithub.com Cloudflare DNS. You must set the `CF_KEY` value in the file `config` for this hook 
+to work. 
 
 Once the Dehydrated tool has successfully obtained the SSL certificates it will call `./hooks/heroku-auto-ssl/hook.py`. 
 This custom hook for Dehydrated takes the obtained SSL certificate and deploys it to the specified Heroku SSL endpoints. 
@@ -48,17 +44,17 @@ These endpoints can be set in the `HEROKU_APP_IDS` key of the `config` file.
 This section provides a more detailed overview of the specific Heroku Auto SSL hook. Consider reading this section if 
 you will be editing `./hooks/heroku-auto-ssl/hook.py`.
 
-When `hook.py` gets called by Dehydrated, several command line arguments are supplied. The first command line argument (
-after the file name) is the name of the hook to run. This specifies which stage of the SSL certificate retrieval process 
+When `hook.py` gets called by Dehydrated, several command line arguments are supplied. The first command line argument 
+(after the file name) is the name of the hook to run. This specifies which stage of the SSL certificate retrieval process 
 Dehydrated is in. For this specific hook we only care about the `deploy_cert` hook. Any command line arguments after the 
 hook name are hook specific (Specific paths to SSL certificates, domains names, ect...). 
 
 When `hook.py` gets run it calls the `main()` function. In this function there is an `operations` object. This is 
 where the program "registers" hooks it will handle. Keys in the `operations` object are hook names, values are handler 
 functions. Later on in `main()` the program checks to see if a key with the hook name given as a command line argument 
-exists in the `operations` object. If so the corresponding handler function gets called. 
+exists in the `operations` object. If so the corresponding handler function gets run. 
 
-Since the `deploy_cert` hook is the only one we handle right now `deploy_cert()` the only handler function to go over. 
+Since the `deploy_cert` hook is the only one we handle right now, `deploy_cert()` is the only handler function to go over. 
 `deploy_cert()` gets called to, unsurprisingly, handle the `deploy_cert` hook. This function will deploy the retrieved 
 SSL certificate to every Heroku app specified in the `HEROKU_APP_IDS` configuration value. It gets called with the 
 argument `args`. Every handler function will be passed `args`. It is an array of all command line arguments provided after 
@@ -74,6 +70,15 @@ heroku certs:update <cert file> <key file> --app <heroku app id> --confirm <hero
 
 for every Heroku App Id. 
 
+## Make commands
+This section provide documentation on the Make commands used in this project.
+- `setup-hooks` - Will install Python dependencies for the Cloudflare Dehydrated hook
+    - This runs the `./hooks/setup-hooks.sh` script
+    - This script detects which python version is installed and installs the appropriate dependencies
+- `d-run` - Will run the Dehydrated tool with the correct command line arguments to retrieve and deploy SSL certificates
+    - Registers local Lets Encrypt account, accepts license
+    - Adds command line argument to do standard SSL certificate renewal
+    - Adds command line argument to run custom Heroku Auto SSL hook
 
 # Tools Used
 ## Dehydrated
