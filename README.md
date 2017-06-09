@@ -12,7 +12,7 @@
 	- Your newly obtained SSL certificates should be in the `certs/admithub.com` directory
 	- This process can take anywhere from 1 to 20 minutes so be patient.
 	- The reason behind this is that we are using DNS to verify our domains with Lets Encrypt. For this to work successfully we have
-	to wait for DNS changes to propigate, how long this takes is basically random.
+	to wait for DNS changes to propagate, how long this takes is basically random.
     - It typically takes around 5 to 15 minutes for the new SSL certificate to take effect.
 		- Also beware when checking in browsers that some may cache certificates per session. So you may have to open new windows to see the new ssl certificates.
 - 5. Once done delete the `certs` directory so you don't have all of AdmitHub's super secret SSL certificates laying around on your computer.
