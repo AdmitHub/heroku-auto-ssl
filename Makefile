@@ -3,4 +3,4 @@ setup-hooks:
 
 d-run:
 	./dehydrated/dehydrated --register --accept-terms
-	./dehydrated/dehydrated -c -k "./hooks/heroku-auto-ssl/hook.py"
+	./dehydrated/dehydrated -c
