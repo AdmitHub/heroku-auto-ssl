@@ -18,11 +18,13 @@ RUN git submodule init
 RUN git submodule update
 RUN hooks/setup-hooks.sh
 
+# Setup update if needed
+RUN cd update-if-needed && npm install
+
 #
 # Run
 # 
 # Ensure the HEROKU_API_KEY environment variable is set or else we won't be able 
 # to authenticate with Heroku to update certificates.
 #
-CMD ./dehydrated/dehydrated --register --accept-terms && \
-    ./dehydrated/dehydrated --config /home/secrets/config
+CMD auto.sh

@@ -8,6 +8,8 @@ accounts
 config
 *.pem
 *.csr
+# -- Update if needed
+node_modules/
 
 # -- Vim
 *.swp

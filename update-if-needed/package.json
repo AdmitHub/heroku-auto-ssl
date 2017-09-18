@@ -1,0 +1,24 @@
+{
+  "name": "update-if-needed",
+  "version": "1.0.0",
+  "description": "A small script which determines which domains in domains.master.txt need new SSL certificates",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/AdmitHub/heroku-auto-ssl.git"
+  },
+  "author": "AdmitHub",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AdmitHub/heroku-auto-ssl/issues"
+  },
+  "homepage": "https://github.com/AdmitHub/heroku-auto-ssl#readme",
+  "dependencies": {
+    "get-ssl-certificate": "^2.0.1",
+    "moment": "^2.18.1"
+  }
+}

@@ -26,6 +26,7 @@ exists it will be deleted. And the dehydrated tool will not be run.
 
 # Read domains.master.txt
 domains = []
+hostname = ""
 with open("domains.master.txt", "r") as f:
     # Read contents
     contents = f.read()
@@ -34,7 +35,15 @@ with open("domains.master.txt", "r") as f:
     domains = contents.split()
 
     # Remove first element, it is the root domain
+    hostname = domains[0]
     domains.pop(0)
+
+# Create ssl context
+ctx = ssl.create_default_context()
+#ctx.check_hostname = False
+#ctx.verify_mode = ssl.CERT_NONE
+ctx.verify_mode = ssl.CERT_REQUIRED
+ctx.set_default_verify_paths()
 
 for domain in domains:
     print("Checking {}".format(domain))
@@ -53,6 +62,8 @@ for domain in domains:
     ssl_sock = False
     try:
         ssl_sock = ssl.wrap_socket(sock, 
+                                   ssl_version=ssl.PROTOCOL_TLS,
+#                                   server_hostname=hostname,
                                    ca_certs="/etc/ssl/certs/ca-certificates.crt",
                                    cert_reqs=ssl.CERT_REQUIRED)
     except Exception as e:
