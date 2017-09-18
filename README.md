@@ -99,7 +99,7 @@ Provides control over Heroku applications from the command line.
 Python `2.X.X` or `3.X.X` is required to run Dehydrated and its hooks.
 
 # Files
-Simple documentation for non obvouius files.
+Simple documentation for non obvious files.
 
 ## config.example
 **!!Do NOT commit with real `CF_KEY` value!!**  

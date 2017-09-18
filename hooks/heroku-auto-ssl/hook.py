@@ -11,7 +11,7 @@ def get_heroku_app_ids():
     if _heroku_app_ids is None:
         env = os.environ.get(_HEROKU_APP_IDS_ENV_KEY)
 
-        # Check if environment variavle is set
+        # Check if environment var is set
         if env is None:
             err_txt = "{} not set".format(_HEROKU_APP_IDS_ENV_KEY)
             logging.exception(err_txt)
@@ -135,7 +135,7 @@ def cmd_output(cmds):
 #      HOOKS      #
 ###################
 """Dehydrated 'deploy_cert' hook handler
-Purpose is to deploy successfully gained SSL certs to application
+Purpose is to deploy successfully retrieved SSL certs to Heroku applications
 
 Args:
     - args (object[]): Command lind arguments without filename or hook name. Expected format:
