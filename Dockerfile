@@ -1,11 +1,11 @@
-FROM frolvlad/alpine-python3
+FROM jfloff/alpine-python:latest
 
 #
 # Setup
 #
 
-# Install OpenSSL and OpenSSH (For Git), Git, Nodejs (For Heroku CLI), Heroku CLI
-RUN apk add --update openssh openssl git nodejs nodejs-npm
+# Install CA certs, Bash, OpenSSL and OpenSSH (For Git), Git, Nodejs (For Heroku CLI), Heroku CLI
+RUN apk add --update ca-certificates openssh openssl git nodejs nodejs-npm
 RUN npm install -g heroku-cli
 
 # Clone Heroku Auto SSL
@@ -16,7 +16,6 @@ RUN git checkout manual
 # Setup Heroku Auto SSL
 RUN git submodule init
 RUN git submodule update
-RUN pwd && ls -al
 RUN hooks/setup-hooks.sh
 
 #
