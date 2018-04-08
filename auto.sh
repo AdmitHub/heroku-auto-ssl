@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 
-mv domains.txt domains.old.txt
+# Backup old domains.txt
+if [[ -f domains.txt ]]; then
+    mv domains.txt domains.old.txt
+fi
+
+# Check for updates
 cd update-if-needed && npm start && cd ../
 
+# Run dehydrated if needed
 if [ -f domains.txt ]; then
     ./dehydrated/dehydrated --register --accept-terms
 	./dehydrated/dehydrated -c

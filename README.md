@@ -63,7 +63,7 @@ the hook name. `args` is then expanded out into multiple hook specific variables
 After `deploy_cert()` has expanded `args` out into multiple hook specific variables (domain, key files, cert file, 
 full chain file, chain file, and timestamp) the program attempts to load Heroku App Ids from the environment variable 
 `HEROKU_APP_IDS` (Which is set in the `config` file). This is done via the `get_heroku_app_ids()` function. This 
-function basically lazy loads a JSON array from the environment variable `HEROKU_APP_IDS`. Then the program runs:
+function lazy loads a JSON array from the environment variable `HEROKU_APP_IDS`. Next the program runs:
 ```bash
 heroku certs:update <cert file> <key file> --app <heroku app id> --confirm <heroku app id>
 ```

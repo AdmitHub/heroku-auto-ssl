@@ -1,3 +1,5 @@
+.PHONY: setup-hooks d-run
+
 setup-hooks:
 	./hooks/setup-hooks.sh
 

@@ -27,4 +27,4 @@ RUN cd update-if-needed && npm install
 # Ensure the HEROKU_API_KEY environment variable is set or else we won't be able 
 # to authenticate with Heroku to update certificates.
 #
-CMD auto.sh
+CMD ./auto.sh

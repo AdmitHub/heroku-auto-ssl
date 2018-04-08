@@ -19,10 +19,11 @@ domains.shift();// remove first item, which is root domain
 let dl = new DomainList(domains);
 dl.CheckAll()
     .then(() => {
-        log.info(`Finished checking all domains, expired: [${dl.expiredDomains}]` +
-                                              `, valid: [${dl.validDomains}]` +
-                                              `, should renew: [${dl.shouldRenewDomains}]` + 
-                                              `, no action: [${dl.noActionDomains}]`);
+        log.info(`Finished checking all domains`);
+        log.info(`    expired     : ${dl.expiredDomains}`);
+        log.info(`    valid       : ${dl.validDomains}`);
+        log.info(`    should renew: ${dl.shouldRenewDomains}`);
+        log.info(`    no action   : ${dl.noActionDomains}`);
 
 
         // If there are any renewal domains, write to domains.txt
