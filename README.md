@@ -1,21 +1,22 @@
 # Instructions on how to update AdmitHub's SSL certificates
-- 1. Initialize submodules
+- Clone down this repository
+- Initialize submodules
     - Run `git submodule init` to initialize submodules listed in `.gitmodules`
     - Run `git submodule update` to clone down submodule content
-- 2. Create a copy of `config.example` named `config`
+- Create a copy of `config.example` named `config`
 	- **!!Never Commit this value!!**
 		- This key provides complete access to your CloudFlare account which includes DNS options
 	- Change the value of `CF_KEY` (Last option in `config` file) to the value found in [Cloudflare Settings](https://www.cloudflare.com/a/account/my-account) > `Account` > `API Key` > `Global API Key`.
-- 3. Go to the [Heroku Toolbelt installation documentation](https://devcenter.heroku.com/articles/heroku-cli#download-and-install) and follow the instructions for your operating system.
+- Go to the [Heroku Toolbelt installation documentation](https://devcenter.heroku.com/articles/heroku-cli#download-and-install) and follow the instructions for your operating system.
 	- Login to the Heroku CLI with the `heroku login` command
-- 4. Obtain the SSL certificates by running the following in the root of this repository: `make d-run`
+- Obtain the SSL certificates by running the following in the root of this repository: `make d-run`
 	- Your newly obtained SSL certificates should be in the `certs/admithub.com` directory
 	- This process can take anywhere from 1 to 20 minutes so be patient.
 	- The reason behind this is that we are using DNS to verify our domains with Lets Encrypt. For this to work successfully we have
 	to wait for DNS changes to propagate, how long this takes is basically random.
     - It typically takes around 5 to 15 minutes for the new SSL certificate to take effect.
 		- Also beware when checking in browsers that some may cache certificates per session. So you may have to open new windows to see the new ssl certificates.
-- 5. Once done delete the `certs` directory so you don't have all of AdmitHub's super secret SSL certificates laying around on your computer.
+- Once done delete the `certs` directory so you don't have all of AdmitHub's super secret SSL certificates laying around on your computer.
 	- You can back them up but be sure to encrypt the backups in some form.
 	
 # Systems documentation
