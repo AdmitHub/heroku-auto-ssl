@@ -4,9 +4,9 @@
     - Run `git submodule init` to initialize submodules listed in `.gitmodules`
     - Run `git submodule update` to clone down submodule content
 - Create a copy of `config.example` named `config`
-	- **!!Never Commit this value!!**
-		- This key provides complete access to your CloudFlare account which includes DNS options
 	- Change the value of `CF_KEY` (Last option in `config` file) to the value found in [Cloudflare Settings](https://www.cloudflare.com/a/account/my-account) > `Account` > `API Key` > `Global API Key`.
+    	- **!!Never Commit this value!!**
+		- This key provides complete access to your CloudFlare account which includes DNS options
 - Go to the [Heroku Toolbelt installation documentation](https://devcenter.heroku.com/articles/heroku-cli#download-and-install) and follow the instructions for your operating system.
 	- Login to the Heroku CLI with the `heroku login` command
 - Obtain the SSL certificates by running the following in the root of this repository: `make d-run`
