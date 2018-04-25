@@ -77,10 +77,6 @@ This section provide documentation on the Make commands used in this project.
 - `setup-hooks` - Will install Python dependencies for the Cloudflare Dehydrated hook
     - This runs the `./hooks/setup-hooks.sh` script
     - This script detects which python version is installed and installs the appropriate dependencies
-- `d-run` - Will run the Dehydrated tool with the correct command line arguments to retrieve and deploy SSL certificates
-    - Registers local Lets Encrypt account, accepts license
-    - Adds command line argument to do standard SSL certificate renewal
-    - Adds command line argument to run custom Heroku Auto SSL hook
 
 # Tools Used
 ## Dehydrated
@@ -116,7 +112,7 @@ is edited.
 **!!Should NEVER be commited!!**  
 Configuration file for Dehydrated. See `config.example` for more info.
 
-## domains.txt
+## domains.master.txt
 Configuration file which lets Dehydrated know which domains and subdomains to obtain SSL certificates for.
 
 Each line represents a new domain. Entries are seperated by spaces.
@@ -128,3 +124,6 @@ Another way of explaining it:
 root1.tld sub1.root1.tld sub2.root1.tld sub3.root1.tld
 root2.tld sub1.root2.tld sub2.root2.tld sub3.root2.tld
 ```
+
+## auto.sh
+Automatically determines which domains need to be updated and runs Dehydrated to update certs for those domains.
