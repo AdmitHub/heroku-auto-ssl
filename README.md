@@ -10,7 +10,7 @@
 		- This key provides complete access to your CloudFlare account which includes DNS options
 - Go to the [Heroku Toolbelt installation documentation](https://devcenter.heroku.com/articles/heroku-cli#download-and-install) and follow the instructions for your operating system.
 	- Login to the Heroku CLI with the `heroku login` command
-- Obtain the SSL certificates by running the following in the root of this repository: `make d-run`
+- Obtain the SSL certificates by running the following in the root of this repository: `./auto.sh`
 	- Your newly obtained SSL certificates should be in the `certs/admithub.com` directory
 	- This process can take anywhere from 1 to 20 minutes so be patient.
 	- The reason behind this is that we are using DNS to verify our domains with Lets Encrypt. For this to work successfully we have
