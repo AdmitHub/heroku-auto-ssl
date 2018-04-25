@@ -3,6 +3,7 @@
 - Initialize submodules
     - Run `git submodule init` to initialize submodules listed in `.gitmodules`
     - Run `git submodule update` to clone down submodule content
+- Setup project dependencies by running `make setup-hooks`
 - Create a copy of `config.example` named `config`
 	- Change the value of `CF_KEY` (Last option in `config` file) to the value found in [Cloudflare Settings](https://www.cloudflare.com/a/account/my-account) > `Account` > `API Key` > `Global API Key`.
     	- **!!Never Commit this value!!**
